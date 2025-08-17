@@ -34,4 +34,6 @@ and finish work on the live-updates 🔃.
 
 ## Development
 
-Simply run `make templier` and start coding.
+- Install [bun](https://bun.com/) (only needed for TailwindCSS).
+- run `bun i`.
+- run `make templier` and start coding.
