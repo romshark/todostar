@@ -1,5 +1,7 @@
 # Todostar
 
+https://github.com/user-attachments/assets/1069facc-1de8-4731-b86b-d74625814a22
+
 Todostar is a collaborative todo tech-demo app hand-crafted using:
 
 - [Go](https://go.dev) main language.
