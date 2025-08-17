@@ -1,0 +1,37 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go 1.25.0
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.0"
+          check-latest: true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install gofumpt
+        run: go install mvdan.cc/gofumpt@latest
+
+      - name: Run govulncheck
+        run: make vulncheck
+
+      - name: Check gofumpt formatting
+        run: make fmtcheck
+
+      - name: Check generated code
+        run: make gencheck
+
+      - name: Run tests with coverage
+        run: go test -covermode=atomic -coverpkg=./... -coverprofile=coverage.out ./...
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: coverage.out

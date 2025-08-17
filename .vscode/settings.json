@@ -1,0 +1,26 @@
+{
+  "go.formatTool": "gofumpt",
+  "editor.formatOnSave": true,
+  "[templ]": {
+      "editor.defaultFormatter": "a-h.templ"
+  },
+  "[go]": {
+    "editor.formatOnSave": true
+  },
+  "gopls": {
+    "formatting.gofumpt": true
+  },
+
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  "files.associations": {
+    "*.tw.css": "tailwindcss", // treat .tw.css as Tailwind CSS
+  },
+  // Instruct IntelliSense to also scan .templ files for classes
+  "tailwindCSS.includeLanguages": {
+    "templ": "html",
+  },
+  "tailwindCSS.experimental.configFile": "./server/style.tw.css"
+}

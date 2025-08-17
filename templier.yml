@@ -1,0 +1,66 @@
+proxy-timeout: 10s
+format: false
+lint: true
+templier-host: "localhost:7331"
+
+log:
+  level: erronly
+  clear-on: restart
+  print-js-debug-logs: true
+
+debounce: 50ms
+
+tls:
+
+app:
+  dir-src-root: "./"
+  exclude:
+    - ".*" # All hidden files.
+    - "*~" # Any temporary backup files IDEs might use.
+    - node_modules/*
+    - README.md
+  dir-cmd: "./cmd/server"
+  dir-work: "."
+  host: "http://localhost:8080"
+  flags: -host localhost:8080 -debug
+
+custom-watchers:
+  - name: "Go mod update"
+    cmd:
+    include:
+      - "go.mod"
+      - "go.sum"
+    exclude:
+    debounce:
+    fail-on-error: true
+    requires: rebuild
+  - name: "Bundle CSS"
+    cmd: "make dist"
+    include:
+      - "server/template/*.templ"
+      - "server/*.css"
+      - "server/tailwind.config.js"
+      - "server/postcss.config.js"
+    exclude: ["server/static/*"]
+    fail-on-error: true
+    debounce:
+    requires: # No action, "Bundle Changed" will do the reloading.
+  - name: Bundle Changed
+    cmd: # Just reload all tabs.
+    include: ["server/static/*"]
+    exclude:
+    fail-on-error:
+    debounce:
+    requires: reload
+
+compiler:
+  gcflags:
+  ldflags:
+  asmflags:
+  race:
+  msan:
+  tags:
+  trimpath:
+  p:
+  env:
+    CGO_ENABLED: 0

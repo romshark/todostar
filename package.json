@@ -1,0 +1,19 @@
+{
+  "name": "todostar",
+  "type": "module",
+  "scripts": {
+    "build:css": "postcss ./server/style.tw.css -o ./server/static/dist.css"
+  },
+  "author": "Roman Scharkov <roman.scharkov@gmail.com>",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.12",
+    "autoprefixer": "^10.4.21",
+    "bun": "1.2.0",
+    "cssnano": "^7.1.0",
+    "eslint": "^9.33.0",
+    "globals": "^15.15.0",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.1.12"
+  }
+}

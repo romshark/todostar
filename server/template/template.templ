@@ -1,0 +1,418 @@
+package template
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/romshark/todostar/domain"
+	"github.com/romshark/todostar/pkg/timefmt"
+)
+
+templ htmlMain(title string) {
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<title>{ title }</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta charset="UTF-8"/>
+			<meta name="description" content="Toki web GUI for editing catalogs"/>
+			<meta name="author" content="Roman Scharkov <roman.scharkov@gmail.com>"/>
+			// Favicon: standard
+			<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
+			<link rel="icon" href="/static/favicon.ico" sizes="any"/>
+			// Favicon: Apple Touch Icon (iOS Home Screen)
+			<link rel="apple-touch-icon" href="/static/apple-touch-icon.png"/>
+			// Favicon: Android/Chrome icons (via Web App Manifest)
+			<link rel="manifest" href="/static/site.webmanifest"/>
+			// Favicon: Optional: theme colors for PWA / mobile browser UI
+			<meta name="theme-color" content="#ffffff"/>
+			// 3rd-party
+			<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js"></script>
+			<link rel="stylesheet" href="https://early.webawesome.com/webawesome@3.0.0-beta.4/dist/styles/webawesome.css"/>
+			<script type="module" src="https://early.webawesome.com/webawesome@3.0.0-beta.4/dist/webawesome.loader.js"></script>
+			// App styles
+			<link rel="stylesheet" href="/static/dist.css"/>
+		</head>
+		<body class="h-screen min-h-screen flex flex-col">
+			{ children... }
+		</body>
+	</html>
+}
+
+templ PageIndex() {
+	@htmlMain("Todostar") {
+		// Load the todo list dynamically.
+		@ViewIndex(nil)
+		<footer
+			class="
+			m-auto opacity-60 font-sans p-8
+			max-w-xl md:max-w-xl flex flex-col items-center"
+		>
+			<span>
+				<a target="_blank" href="https://github.com/romshark/todostar">
+					<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
+					Todostar
+				</a>
+				- a
+				<a target="_blank" href="https://data-star.dev">
+					Datastar
+				</a>
+				tech demo
+			</span>
+			<span>
+				Hand-crafted with 🫶 by
+				<a target="_blank" href="https://github.com/romshark">
+					<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
+					Roman Sharkov
+				</a>
+			</span>
+		</footer>
+	}
+}
+
+templ ViewIndex(todos []*domain.Todo) {
+	<div id="view-index" class="grow">
+		@PartDialogEdit(false, "", "")
+		@PartDialogNew(false, "", "")
+		<main
+			data-signals="{search: {term:''}}"
+			data-on-load="@get('/stream', {openWhenHidden: true})"
+			class="m-auto p-2 font-sans pt-6 max-w-xl md:max-w-xl flex flex-col"
+		>
+			<div class="flex flex-row gap-4 mb-2">
+				<wa-input
+					class="grow"
+					placeholder="Search"
+					data-bind="search.term"
+					with-clear
+					data-on-input__debounce.200ms="@get('/stream')"
+				></wa-input>
+				<wa-button data-on-click="el_dialogNew.open = true">
+					New
+				</wa-button>
+			</div>
+			if todos == nil {
+				// This placeholder will be patched by the server once
+				// GET /stream has been invoked.
+				<p id="todos">
+					loading todos...
+				</p>
+			} else {
+				@PartListTodos(todos)
+			}
+		</main>
+	</div>
+}
+
+templ PartDialogNew(open bool, errTitle, errDescription string) {
+	<wa-dialog
+		id="el_dialogNew"
+		label="Create new todo"
+		if open {
+			open
+		}
+		light-dismiss
+	>
+		<wa-button
+			slot="header-actions"
+			appearance="plain"
+			data-on-click="
+				$newTitle = null;
+				$newDescription = null;
+				$newDue = null;
+				$eEgg++;
+			"
+			data-effect="if ($eEgg >= 10) { $eEgg = 0; alert('Ha! gotcha, QA!') }"
+		>
+			<wa-icon name="circle-xmark" label="Reset all inputs"></wa-icon>
+		</wa-button>
+		<div
+			class="flex flex-col gap-1"
+			data-on-change="@post('/form/new', {filterSignals: {include: /^new.*$/}})"
+		>
+			<div>
+				<wa-input
+					label="Title"
+					hint="Required"
+					placeholder="Summary"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$newTitle = el.value"
+					data-effect="el.value = $newTitle"
+				></wa-input>
+				if errTitle != "" {
+					@validationError() {
+						<p>{ errTitle }</p>
+					}
+				}
+			</div>
+			<div>
+				<wa-textarea
+					label="Description"
+					placeholder="More info…"
+					hint="The description is optional"
+					resize="auto"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$newDescription = el.value"
+					data-effect="el.value = $newDescription"
+				></wa-textarea>
+				if errDescription != "" {
+					@validationError() {
+						<p>{ errDescription }</p>
+					}
+				}
+			</div>
+			<wa-input
+				label="Due"
+				type="datetime-local"
+				with-clear
+				hint="By when must this be done?"
+				resize="auto"
+				appearance="filled"
+				data-on-input="$newDue = el.value"
+				data-effect="el.value = $newDue"
+			></wa-input>
+		</div>
+		<wa-button
+			slot="footer"
+			data-on-click="el_dialogNew.open = false"
+		>Cancel</wa-button>
+		<wa-button
+			slot="footer"
+			variant="success"
+			data-on-click="@put('/todo'); el_dialogNew.open = false"
+			if errTitle != "" || errDescription != "" {
+				disabled
+			}
+		>Create</wa-button>
+	</wa-dialog>
+}
+
+templ PartDialogEdit(open bool, errTitle, errDescription string) {
+	<wa-dialog
+		id="el_dialogEdit"
+		if open {
+			open
+		}
+		data-attr-label="`Editing Todo ${$editID}`"
+	>
+		<wa-button
+			slot="header-actions"
+			appearance="plain"
+			data-on-click="
+				$archived = true;
+				el_dialogEdit.open = false;
+				@post(`/todo/${$editID}`)
+			"
+		>
+			<wa-icon name="archive" label="Archive this todo"></wa-icon>
+		</wa-button>
+		<div
+			class="flex flex-col gap-1"
+			data-on-change="@post('/form/edit', {filterSignals: {include: /^edit.*$/}})"
+		>
+			<wa-checkbox
+				data-on-input="$editChecked = el.checked"
+				data-effect="el.checked = $editChecked"
+				data-attr-hint="
+					$editChecked ? 'Closed, but can be reopened' : 'Still open'
+				"
+			>Done</wa-checkbox>
+			<div>
+				<wa-input
+					label="Title"
+					hint="Required"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$editTitle = el.value"
+					data-effect="el.value = $editTitle"
+				></wa-input>
+				if errTitle != "" {
+					@validationError() {
+						<p>{ errTitle }</p>
+					}
+				}
+			</div>
+			<div>
+				<wa-textarea
+					label="Description"
+					hint="The description is optional"
+					resize="auto"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$editDescription = el.value"
+					data-effect="el.value = $editDescription"
+				></wa-textarea>
+				if errDescription != "" {
+					@validationError() {
+						<p>{ errDescription }</p>
+					}
+				}
+			</div>
+			<wa-input
+				label="Due"
+				type="datetime-local"
+				hint="By when must this be done?"
+				resize="auto"
+				appearance="filled"
+				with-clear
+				data-on-input="$editDue = el.value"
+				data-effect="el.value = $editDue.split('+')[0]"
+			></wa-input>
+		</div>
+		<wa-button
+			slot="footer"
+			data-on-click="el_dialogEdit.open = false"
+		>Cancel</wa-button>
+		<wa-button
+			slot="footer"
+			variant="success"
+			data-on-click="@post(`/todo/${$editID}`); el_dialogEdit.open = false"
+		>Save Changes</wa-button>
+	</wa-dialog>
+}
+
+templ PartListTodos(todos []*domain.Todo) {
+	<div id="todos">
+		<p class="mb-2 text-sm">
+			{ fmt.Sprintf(
+				"Found %d todo(s) - %.0f%% done",
+				len(todos), percentDone(todos),
+			) }
+		</p>
+		if len(todos) < 1 {
+			<p class="m-auto w-full text-center p-4">
+				No todos found.
+			</p>
+		} else {
+			<ul class="list-none flex flex-col gap-2 m-auto">
+				for _, todo := range todos {
+					@todoListItem(todo)
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ button() {
+	<button class="opacity-75 rounded hover:ring-2 hover:ring-red-200 hover:ring-offset-4 transition w-fit h-fit">
+		{ children... }
+	</button>
+}
+
+templ tooltip(text string) {
+	<div class="group relative inline-flex w-fit">
+		{ children... }
+		<div
+			fade-out.
+			class="opacity-0 invisible scale-90 transition-all duration-100 delay-200
+			group-hover:opacity-100 group-hover:visible group-hover:scale-100 group-hover:delay-300
+			absolute z-10 top-full mt-2 left-1/2 -translate-x-1/2
+			bg-gray-800 text-white text-xs font-medium py-1.5 px-3 rounded-md whitespace-nowrap"
+		>
+			{ text }
+		</div>
+	</div>
+}
+
+templ todoListItem(todo *domain.Todo) {
+	<li class="border rounded border-stone-300 shadow-sm">
+		<div class="flex flex-row gap-1 p-2">
+			<wa-checkbox
+				class="pt-1.5"
+				data-on-input={ fmt.Sprintf(
+					`$editChecked = el.checked; @post('/todo/%d', {
+						filterSignals: {exclude: /^edit(?!Checked).*$/},
+					})`, todo.ID,
+				) }
+				if todo.Status == domain.StatusDone {
+					checked
+				}
+			></wa-checkbox>
+			<div class="flex flex-col grow">
+				<div class="flex flex-row gap-2 justify-between items-start">
+					<p class="font-semibold h-8 leading-8">
+						<span
+							if todo.Status == domain.StatusDone {
+								class="line-through"
+							}
+						>
+							{ todo.Title }
+						</span>
+					</p>
+					<div class="flex flex-row gap-4 justify-between">
+						<div
+							data-signals={ fmt.Sprintf(`{todo_%d: {
+								checked: %t,
+								title: %q,
+								description: %q,
+								due: %q,
+							}}`,
+								todo.ID,
+								todo.Status == domain.StatusDone,
+								todo.Title,
+								todo.Description,
+								timefmt.DateTimeStr(todo.Due),
+							) }
+							data-on-click={ fmt.Sprintf(
+								`$editID = %d;
+								$editChecked = $todo_%d.checked;
+								$editTitle = $todo_%d.title;
+								$editDescription = $todo_%d.description;
+								$editDue = $todo_%d.due;
+								el_dialogEdit.open = true;`,
+								todo.ID, todo.ID, todo.ID, todo.ID, todo.ID,
+							) }
+						>
+							@button() {
+								<wa-icon name="pen"></wa-icon>
+							}
+						</div>
+						<div
+							data-on-click={ fmt.Sprintf(
+								`$archived = true; @post('/todo/%d')`, todo.ID,
+							) }
+						>
+							@button() {
+								<wa-icon name="archive"></wa-icon>
+							}
+						</div>
+					</div>
+				</div>
+				if todo.Status != domain.StatusDone {
+					<p class="whitespace-pre-wrap pr-4">{ todo.Description }</p>
+					if !todo.Due.IsZero() {
+						<div class="flex flex-row gap-1 pb-1">
+							@tooltip(todo.Due.Format("Monday, Jan _2 2006 - 15:04:05")) {
+								<p
+									class="flex flex-row gap-1 items-center mt-2 text-xs border border-stone-200 w-fit p-0.5 rounded-3xl pr-2 pl-2 bg-stone-100"
+									id="due-label"
+								>
+									if dueDateOver(time.Now(), todo.Due) {
+										<wa-icon name="clock"></wa-icon>
+									}
+									{ timefmt.Due(time.Now(), todo.Due) }
+								</p>
+							}
+							<p
+								class="mt-2 text-xs border border-stone-200 w-fit p-0.5 rounded-3xl pr-2 pl-2 bg-stone-100"
+								id="due-label"
+							>
+								Created { timefmt.Dur(-todo.Created.Sub(time.Now())) } ago
+							</p>
+						</div>
+					}
+				}
+			</div>
+		</div>
+	</li>
+}
+
+templ validationError() {
+	<div class="text-red-500 flex flex-row gap-0.5 items-center">
+		<wa-icon name="circle-exclamation"></wa-icon>
+		{ children... }
+	</div>
+}

@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+a {
+  color: var(--wa-color-brand-20);
+  text-decoration: underline;
+}
