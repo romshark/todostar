@@ -1,15 +1,16 @@
 # Todostar
 
-Todostar is a collaborative todo tech-demo app hand-crafted using
-[Go](https://go.dev) + [Templ](https://templ.guide) + [Datastar](https://data-star.dev) +
-[TailwindCSS](https://tailwindcss.com/).
+Todostar is a collaborative todo tech-demo app hand-crafted using:
 
-This is a server-driven web application developed primarily in Go with minimal JavaScript.
+- [Go](https://go.dev) main language.
+- [Templ](https://templ.guide) HTML templates.
+- [Datastar](https://data-star.dev) JS-killer.
+- [TailwindCSS](https://tailwindcss.com/) styling.
+- [WebAwesome](https://webawesome.com/) web components.
+- [Templier](https://github.com/romshark/templier) hot-reloader.
+
+This is a server-driven web application in just 2k LoC of Go and minimal JavaScript.
 The only thing I use [bun](https://bun.com/) for is building the tailwind bundle.
-
-[Templier](https://github.com/romshark/templier) is used for interactive development and
-hot reload.
-
 Hypermedia Rocks 🤘
 
 🚧 This is still a work in progress. I still need to fix the randomly hanging tab bug 🐛
