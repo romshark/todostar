@@ -29,7 +29,7 @@ and finish work on the live-updates 🔃.
 - Theme toggleable between `system`/`light`/`dark`.
 - More filters & sorting
 - The due time of a todo entry is currently not dynamically updated
-  and went left idle might show a not-up-to-date value.
+  and when left idle might show a not-up-to-date value.
 - Anything else...? Drop an [issue](https://github.com/romshark/todostar/issues)!
 
 ## Development
