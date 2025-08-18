@@ -1,6 +1,12 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* Disable preflight such that it doesn't break webawesome */
+@import "tailwindcss/utilities.css" layer(utilities);
 
 a {
-  color: var(--wa-color-brand-20);
+  color: var(--wa-color-brand-50);
   text-decoration: underline;
 }
+
+/* Make Tailwind's `dark:` variant class-based instead of media-based */
+@custom-variant dark (&:where(.dark &, [wa-theme="dark"] &));

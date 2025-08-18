@@ -33,8 +33,56 @@ templ htmlMain(title string) {
 			<script type="module" src="https://early.webawesome.com/webawesome@3.0.0-beta.4/dist/webawesome.loader.js"></script>
 			// App styles
 			<link rel="stylesheet" href="/static/dist.css"/>
+			// Global event handlers.
+			<script>
+				matchMedia('(prefers-color-scheme: dark)').addEventListener(
+					'change', e => {
+						document.body.dispatchEvent(new CustomEvent(
+							'system-theme-change', { detail: e.matches }
+						));
+					}
+				);
+			</script>
 		</head>
-		<body class="h-screen min-h-screen flex flex-col">
+		<body
+			data-signals="{
+				theme: localStorage.getItem('theme') || 'system',
+				themeisdark: false,
+			}"
+			data-effect="
+				localStorage.setItem('theme', $theme);
+				$themeisdark = $theme === 'dark' ||
+					($theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+    			document.documentElement.classList.toggle('dark', $themeisdark);
+			"
+			data-on-system-theme-change="$themeisdark = event.detail"
+			data-class-wa-dark="$themeisdark"
+			class="
+				h-fit min-h-screen flex flex-col
+				bg-white text-black
+				dark:bg-stone-950 dark:text-stone-400
+			"
+		>
+			<nav
+				class="
+					flex flex-row p-2 w-full justify-between items-center
+					max-w-xl md:max-w-xl m-auto
+				"
+			>
+				<img
+					class="h-6"
+					src="/static/logo.svg"
+					alt="logo"
+					data-show="!$themeisdark"
+				/>
+				<img
+					class="h-6 opacity-60"
+					src="/static/logo_dark.svg"
+					alt="logo"
+					data-show="$themeisdark"
+				/>
+				@profileNavMenu()
+			</nav>
 			{ children... }
 		</body>
 	</html>
@@ -78,7 +126,7 @@ templ ViewIndex(todos []*domain.Todo) {
 		<main
 			data-signals="{search: {term:''}}"
 			data-on-load="@get('/stream', {openWhenHidden: true})"
-			class="m-auto p-2 font-sans pt-6 max-w-xl md:max-w-xl flex flex-col"
+			class="m-auto p-2 font-sans max-w-xl md:max-w-xl flex flex-col"
 		>
 			<div class="flex flex-row gap-4 mb-2">
 				<wa-input
@@ -88,7 +136,11 @@ templ ViewIndex(todos []*domain.Todo) {
 					with-clear
 					data-on-input__debounce.200ms="@get('/stream')"
 				></wa-input>
-				<wa-button data-on-click="el_dialogNew.open = true">
+				<wa-button
+					data-effect="el.appearance = $themeisdark ? 'outlined' : ''"
+					data-on-click="el_dialogNew.open = true"
+				>
+					<wa-icon slot="start" name="plus"></wa-icon>
 					New
 				</wa-button>
 			</div>
@@ -296,12 +348,6 @@ templ PartListTodos(todos []*domain.Todo) {
 	</div>
 }
 
-templ button() {
-	<button class="opacity-75 rounded hover:ring-2 hover:ring-red-200 hover:ring-offset-4 transition w-fit h-fit">
-		{ children... }
-	</button>
-}
-
 templ tooltip(text string) {
 	<div class="group relative inline-flex w-fit">
 		{ children... }
@@ -318,7 +364,7 @@ templ tooltip(text string) {
 }
 
 templ todoListItem(todo *domain.Todo) {
-	<li class="border rounded border-stone-300 shadow-sm">
+	<li class="border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0">
 		<div class="flex flex-row gap-1 p-2">
 			<wa-checkbox
 				class="pt-1.5"
@@ -333,7 +379,7 @@ templ todoListItem(todo *domain.Todo) {
 			></wa-checkbox>
 			<div class="flex flex-col grow">
 				<div class="flex flex-row gap-2 justify-between items-start">
-					<p class="font-semibold h-8 leading-8">
+					<p class="font-semibold h-8 leading-8 m-0 p-0">
 						<span
 							if todo.Status == domain.StatusDone {
 								class="line-through"
@@ -342,7 +388,7 @@ templ todoListItem(todo *domain.Todo) {
 							{ todo.Title }
 						</span>
 					</p>
-					<div class="flex flex-row gap-4 justify-between">
+					<div class="flex flex-row justify-between">
 						<div
 							data-signals={ fmt.Sprintf(`{todo_%d: {
 								checked: %t,
@@ -366,42 +412,50 @@ templ todoListItem(todo *domain.Todo) {
 								todo.ID, todo.ID, todo.ID, todo.ID, todo.ID,
 							) }
 						>
-							@button() {
-								<wa-icon name="pen"></wa-icon>
-							}
+							<wa-button appearance="plain">
+								<wa-icon name="pen" label="Edit Todo"></wa-icon>
+							</wa-button>
 						</div>
 						<div
 							data-on-click={ fmt.Sprintf(
 								`$archived = true; @post('/todo/%d')`, todo.ID,
 							) }
 						>
-							@button() {
-								<wa-icon name="archive"></wa-icon>
-							}
+							<wa-button appearance="plain">
+								<wa-icon name="archive" label="Archive Todo"></wa-icon>
+							</wa-button>
 						</div>
 					</div>
 				</div>
 				if todo.Status != domain.StatusDone {
-					<p class="whitespace-pre-wrap pr-4">{ todo.Description }</p>
+					<p class="whitespace-pre-wrap p-0 m-0 pr-4">{ todo.Description }</p>
 					if !todo.Due.IsZero() {
-						<div class="flex flex-row gap-1 pb-1">
-							@tooltip(todo.Due.Format("Monday, Jan _2 2006 - 15:04:05")) {
-								<p
-									class="flex flex-row gap-1 items-center mt-2 text-xs border border-stone-200 w-fit p-0.5 rounded-3xl pr-2 pl-2 bg-stone-100"
-									id="due-label"
+						<div class="flex flex-row gap-2 pb-2 pt-2">
+							@tooltip(todo.Due.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag
+									if dueDateOver(time.Now(), todo.Due) {
+										variant="warning"
+									} else {
+										variant="neutral"
+									}
 								>
 									if dueDateOver(time.Now(), todo.Due) {
 										<wa-icon name="clock"></wa-icon>
 									}
 									{ timefmt.Due(time.Now(), todo.Due) }
-								</p>
+								</wa-tag>
 							}
-							<p
-								class="mt-2 text-xs border border-stone-200 w-fit p-0.5 rounded-3xl pr-2 pl-2 bg-stone-100"
-								id="due-label"
-							>
-								Created { timefmt.Dur(-todo.Created.Sub(time.Now())) } ago
-							</p>
+							@tooltip(todo.Created.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag variant="neutral">
+									Created { timefmt.Dur(
+										-todo.Created.Sub(time.Now()),
+									) } ago
+								</wa-tag>
+							}
 						</div>
 					}
 				}
@@ -415,4 +469,34 @@ templ validationError() {
 		<wa-icon name="circle-exclamation"></wa-icon>
 		{ children... }
 	</div>
+}
+
+templ profileNavMenu() {
+	<wa-dropdown placement="bottom-end">
+		<wa-button
+			appearance="plain"
+			slot="trigger"
+		>
+			<wa-icon name="user" label="Main Menu"></wa-icon>
+		</wa-button>
+		<wa-dropdown-item value="cut" disabled>
+			<wa-icon slot="icon" name="archive" label="Archive"></wa-icon>
+			Archive
+		</wa-dropdown-item>
+		<h3>Theme</h3>
+		<wa-dropdown-item data-on-click="$theme = 'light'">
+			<wa-icon slot="icon" name="sun" label="Light Theme"></wa-icon>
+			Light
+		</wa-dropdown-item>
+		<wa-dropdown-item data-on-click="$theme = 'dark'">
+			<wa-icon slot="icon" name="moon" label="Dark Theme"></wa-icon>
+			Dark
+		</wa-dropdown-item>
+		<wa-dropdown-item
+			data-on-click="$theme = 'system'"
+		>
+			<wa-icon slot="icon" name="desktop" label="System Theme"></wa-icon>
+			System
+		</wa-dropdown-item>
+	</wa-dropdown>
 }

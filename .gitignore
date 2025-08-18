@@ -25,3 +25,6 @@ go.work.sum
 .env
 
 node_modules
+
+# macOS
+.DS_Store

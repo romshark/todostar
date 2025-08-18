@@ -26,7 +26,6 @@ and finish work on the live-updates 🔃.
 - Visual loading indication for the folks on dial-up.
   - Skeletons to hide flashy web components and eliminate CLS
     (which is currently the biggest dent in the Lighthouse score).
-- Theme toggleable between `system`/`light`/`dark`.
 - More filters & sorting
 - The due time of a todo entry is currently not dynamically updated
   and when left idle might show a not-up-to-date value.
