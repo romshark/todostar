@@ -6,9 +6,11 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/romshark/todostar/domain"
 	"github.com/romshark/todostar/events"
 	"github.com/romshark/todostar/pkg/timefmt"
@@ -42,6 +44,7 @@ func New(store *domain.Store, accessLog bool) *Server {
 		getStatic = middleware.NoCache(
 			http.FileServer(http.Dir("./server/static")),
 		)
+		getStatic = middleware.Brotli(getStatic, 9)
 		slog.Info("serving static from disk (dev mode)")
 	} else {
 		// Serve embedded in prod.
@@ -50,10 +53,12 @@ func New(store *domain.Store, accessLog bool) *Server {
 			panic(err)
 		}
 		getStatic = http.FileServer(http.FS(staticFiles))
+		getStatic = middleware.Brotli(getStatic, 9)
 	}
 
 	newHandler := func(pattern string, h http.HandlerFunc) {
 		handler := http.Handler(h)
+		handler = middleware.Brotli(handler, 9)
 		if accessLog {
 			handler = middleware.AccessLog(h)
 		}
@@ -64,23 +69,21 @@ func New(store *domain.Store, accessLog bool) *Server {
 	m.Handle("GET /static/", http.StripPrefix("/static/", getStatic))
 
 	// Healthcheck
-	m.HandleFunc("GET /livez", s.getLivez)
-	m.HandleFunc("GET /readyz", s.getReadyz)
+	m.HandleFunc("GET /livez/{$}", s.getLivez)
+	m.HandleFunc("GET /readyz/{$}", s.getReadyz)
 
 	// Pages
 	newHandler("GET /", s.getIndex)
-
-	// Streams
-	newHandler("GET /stream", s.getIndexStream)
+	newHandler("GET /archive/{$}", s.getArchive)
 
 	// Fragments
-	newHandler("POST /form/new", s.postFormNew)
-	newHandler("POST /form/edit", s.postFormEdit)
+	newHandler("POST /form/new/{$}", s.postFormNew)
+	newHandler("POST /form/edit/{$}", s.postFormEdit)
 
-	// Commands
-	newHandler("DELETE /todo/{id}", s.deleteTodo)
-	newHandler("PUT /todo", s.putTodo)
-	newHandler("POST /todo/{id}", s.postTodo)
+	// Actions
+	newHandler("DELETE /todo/{$}", s.deleteTodo)
+	newHandler("PUT /todo/{$}", s.putTodo)
+	newHandler("POST /todo/{$}", s.postTodo)
 
 	s.mux = m
 	return s
@@ -105,52 +108,110 @@ func (s *Server) getLivez(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("ok"))
 }
 
-func (s *Server) getIndexStream(w http.ResponseWriter, r *http.Request) {
-	sse := datastar.NewSSE(w, r)
+func isDatastarReq(r *http.Request) bool {
+	return r.Header.Get("Datastar-Request") == "true"
+}
 
-	var signals SignalsIndex
+func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
+	startDark := request.ThemeIsDark(r)
+
+	if !isDatastarReq(r) {
+		if err := template.PageIndex(startDark).Render(r.Context(), w); err != nil {
+			slog.Error("rendering page index", slog.Any("err", err))
+		}
+		return
+	}
+
+	sse := datastar.NewSSE(w, r)
+	if err := sse.ReplaceURL(url.URL{Path: "/"}); err != nil {
+		slog.Error("replacing url", slog.Any("err", err))
+	}
+	patch(sse, template.ViewIndex(nil), "view index")
+
+	var signals Signals
 	if err := datastar.ReadSignals(r, &signals); err != nil {
 		slog.Error("reading signals", slog.Any("err", err))
 	}
 
-	// Patch the async list first.
-	itr, err := s.store.Search(r.Context(), domain.SearchFilters{
+	todos, err := s.store.Search(r.Context(), domain.SearchFilters{
 		TextMatch: signals.Search.Term,
 	})
 	if err != nil {
 		slog.Error("searching todos", slog.Any("err", err))
 		return
 	}
-	if err = sse.PatchElementTempl(
-		template.PartListTodos(itr),
-		datastar.WithSelectorID("todos"),
-	); err != nil {
-		slog.Error("merging fragment", slog.Any("err", err))
-		return
-	}
 
+	patch(sse, template.PartListTodos(todos), "part list todos")
+
+	// Subscribe and keep updating the view until the connection is closed.
 	sub := events.OnTodosChanged(func(etc events.EventTodosChanged) {
-		itr, err := s.store.Search(r.Context(), domain.SearchFilters{
+		todos, err := s.store.Search(r.Context(), domain.SearchFilters{
 			TextMatch: signals.Search.Term,
 		})
 		if err != nil {
 			slog.Error("searching todos", slog.Any("err", err))
 			return
 		}
-		if err = sse.PatchElementTempl(template.ViewIndex(itr)); err != nil {
-			slog.Error("merging fragment", slog.Any("err", err))
-			return
+		if todos == nil {
+			todos = []*domain.Todo{}
 		}
+		patch(sse, template.ViewIndex(todos), "view index")
 	})
 	defer sub.Close()
 
 	<-sse.Context().Done() // Wait until connection is closed.
 }
 
-func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
-	if err := template.PageIndex().Render(r.Context(), w); err != nil {
-		slog.Error("rendering page index", slog.Any("err", err))
+func (s *Server) getArchive(w http.ResponseWriter, r *http.Request) {
+	startDark := request.ThemeIsDark(r)
+
+	if !isDatastarReq(r) {
+		if err := template.PageArchive(startDark).Render(r.Context(), w); err != nil {
+			slog.Error("rendering page archive", slog.Any("err", err))
+		}
+		return
 	}
+
+	sse := datastar.NewSSE(w, r)
+	if err := sse.ReplaceURL(url.URL{Path: "/archive"}); err != nil {
+		slog.Error("replacing url", slog.Any("err", err))
+	}
+	patch(sse, template.ViewArchive(nil), "view archive")
+
+	var signals Signals
+	if err := datastar.ReadSignals(r, &signals); err != nil {
+		slog.Error("reading signals", slog.Any("err", err))
+	}
+
+	todos, err := s.store.Search(r.Context(), domain.SearchFilters{
+		TextMatch: signals.Search.Term,
+		Archived:  true,
+	})
+	if err != nil {
+		slog.Error("searching archived todos", slog.Any("err", err))
+		return
+	}
+
+	patch(sse, template.PartListArchivedTodos(todos), "part list archived todos")
+
+	// Subscribe and keep updating the view until the connection is closed.
+	sub := events.OnTodosChanged(func(etc events.EventTodosChanged) {
+		todos, err := s.store.Search(r.Context(), domain.SearchFilters{
+			TextMatch: signals.Search.Term,
+			Archived:  true,
+		})
+		if err != nil {
+			slog.Error("searching archived todos", slog.Any("err", err))
+			return
+		}
+		if todos == nil {
+			todos = []*domain.Todo{}
+		}
+		patch(sse, template.ViewArchive(todos), "view archive")
+	})
+	defer sub.Close()
+
+	<-sse.Context().Done() // Wait until connection is closed.
 }
 
 func (s *Server) postFormNew(w http.ResponseWriter, r *http.Request) {
@@ -226,23 +287,26 @@ func (s *Server) postFormEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) deleteTodo(w http.ResponseWriter, r *http.Request) {
-	id, ok := request.PathValue[int64](w, r, "id")
-	if !ok {
+	var signals struct {
+		SelectedTodoID int64 `json:"selectedTodoID,omitempty"`
+	}
+	err := datastar.ReadSignals(r, &signals)
+	if request.IfErrBadRequest(w, err, "bad signals") {
 		return
 	}
 
-	err := s.store.Delete(r.Context(), id)
+	err = s.store.Delete(r.Context(), signals.SelectedTodoID)
 	if request.IfErrInternal(w, err, "") {
 		return
 	}
 
-	// n := events.NotifyTodosChanged()
-	// slog.Debug("notified todos changed", slog.Int("clients", n))
+	n := events.NotifyTodosChanged()
+	slog.Debug("notified todos changed", slog.Int("clients", n))
 }
 
 func (s *Server) putTodo(w http.ResponseWriter, r *http.Request) {
 	var signals struct {
-		SignalsIndex
+		Signals
 		Title       string `json:"newTitle"`
 		Description string `json:"newDescription"`
 		Due         string `json:"newDue"`
@@ -288,25 +352,19 @@ func (s *Server) putTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Notifying currently bugs out for some reason, needs investigation.
-	// n := events.NotifyTodosChanged()
-	// slog.Debug("notified todos changed", slog.Int("clients", n))
-	patchViewIndex(s, w, r, signals.SignalsIndex)
+	n := events.NotifyTodosChanged()
+	slog.Debug("notified todos changed", slog.Int("clients", n))
 }
 
 func (s *Server) postTodo(w http.ResponseWriter, r *http.Request) {
-	id, ok := request.PathValue[int64](w, r, "id")
-	if !ok {
-		return
-	}
-
 	var signals struct {
-		SignalsIndex
-		Archived    *bool   `json:"archived"`
-		Checked     bool    `json:"editChecked"`
-		Title       *string `json:"editTitle"`
-		Description *string `json:"editDescription"`
-		Due         *string `json:"editDue"`
+		Signals
+		SelectedTodoID int64   `json:"selectedTodoID"`
+		Archived       *bool   `json:"editArchived"`
+		Checked        *bool   `json:"editChecked"`
+		Title          *string `json:"editTitle"`
+		Description    *string `json:"editDescription"`
+		Due            *string `json:"editDue"`
 	}
 	err := datastar.ReadSignals(r, &signals)
 	if request.IfErrBadRequest(w, err, "bad signals") {
@@ -326,11 +384,13 @@ func (s *Server) postTodo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = s.store.Edit(r.Context(), id, func(t *domain.Todo) error {
-		if signals.Checked {
-			t.Status = domain.StatusDone
-		} else {
-			t.Status = domain.StatusOpen
+	err = s.store.Edit(r.Context(), signals.SelectedTodoID, func(t *domain.Todo) error {
+		if signals.Checked != nil {
+			if *signals.Checked {
+				t.Status = domain.StatusDone
+			} else {
+				t.Status = domain.StatusOpen
+			}
 		}
 
 		if signals.Archived != nil {
@@ -361,53 +421,21 @@ func (s *Server) postTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Notifying currently bugs out for some reason, needs investigation.
-	patchViewIndex(s, w, r, signals.SignalsIndex)
-	// n := events.NotifyTodosChanged()
-	// slog.Debug("notified todos changed", slog.Int("clients", n))
+	n := events.NotifyTodosChanged()
+	slog.Debug("notified todos changed", slog.Int("clients", n))
 }
 
-type SignalsIndex struct {
+type Signals struct {
 	Search struct {
-		Term string `json:"term"`
-	} `json:"search"`
+		Term string `json:"term,omitempty"`
+	} `json:"search,omitempty"`
 }
 
-func patchViewIndex(
-	s *Server, w http.ResponseWriter, r *http.Request, sig SignalsIndex,
+func patch(
+	sse *datastar.ServerSentEventGenerator, comp templ.Component, compName string,
 ) {
-	sse := datastar.NewSSE(w, r)
-
-	// Patch the async list first.
-	itr, err := s.store.Search(r.Context(), domain.SearchFilters{
-		TextMatch: sig.Search.Term,
-	})
-	if err != nil {
-		slog.Error("searching todos", slog.Any("err", err))
+	if err := sse.PatchElementTempl(comp); err != nil {
+		slog.Error("patching", slog.String("component", compName), slog.Any("err", err))
 		return
 	}
-	if err = sse.PatchElementTempl(
-		template.PartListTodos(itr),
-		datastar.WithSelectorID("todos"),
-	); err != nil {
-		slog.Error("merging fragment", slog.Any("err", err))
-		return
-	}
-
-	sub := events.OnTodosChanged(func(etc events.EventTodosChanged) {
-		itr, err := s.store.Search(r.Context(), domain.SearchFilters{
-			TextMatch: sig.Search.Term,
-		})
-		if err != nil {
-			slog.Error("searching todos", slog.Any("err", err))
-			return
-		}
-		if err = sse.PatchElementTempl(template.ViewIndex(itr)); err != nil {
-			slog.Error("merging fragment", slog.Any("err", err))
-			return
-		}
-	})
-	defer sub.Close()
-
-	<-sse.Context().Done() // Wait until connection is closed.
 }

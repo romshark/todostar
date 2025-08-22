@@ -58,21 +58,11 @@ func IfErrBadRequest(w http.ResponseWriter, err error, msg string) (stop bool) {
 	return true
 }
 
-// // withJSON parses the request body as json according to model T and calls fn.
-// // if fn returns an error or something goes wrong returns true indicating that
-// // processing the request should be aborted immediately.
-// func withJSON[T any](
-// 	w http.ResponseWriter, r *http.Request, fn func(w http.ResponseWriter, data T) error,
-// ) (stop bool) {
-// 	var data T
-// 	err := json.NewDecoder(r.Body).Decode(&data)
-// 	if errBadRequest(w, err) {
-// 		return true
-// 	}
-// 	err = fn(w, data)
-// 	if errInternal(w, err) {
-// 		return true
-// 	}
-// 	// OK
-// 	return false
-// }
+// ThemeIsDark reads from the cookie "themeisdark" whether to prefer rendering in dark.
+func ThemeIsDark(r *http.Request) bool {
+	c, err := r.Cookie("themeisdark")
+	if err != nil || c.Value != "1" {
+		return false
+	}
+	return true
+}

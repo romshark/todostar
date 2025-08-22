@@ -10,3 +10,7 @@ a {
 
 /* Make Tailwind's `dark:` variant class-based instead of media-based */
 @custom-variant dark (&:where(.dark &, [wa-theme="dark"] &));
+
+@view-transition {
+  navigation: auto;
+}

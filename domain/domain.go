@@ -157,7 +157,7 @@ func (s *Store) Search(_ context.Context, filters SearchFilters) (res []*Todo, e
 	if strings.TrimSpace(filters.TextMatch) == "" {
 		// Fast search with simple filters.
 		for _, t := range s.todos {
-			if !filters.Archived && t.Archived {
+			if !filters.Archived && t.Archived || filters.Archived && !t.Archived {
 				continue
 			}
 			res = append(res, t)
@@ -188,7 +188,7 @@ func (s *Store) Search(_ context.Context, filters SearchFilters) (res []*Todo, e
 		if t == nil {
 			continue
 		}
-		if !filters.Archived && t.Archived {
+		if !filters.Archived && t.Archived || filters.Archived && !t.Archived {
 			continue
 		}
 		res = append(res, t)

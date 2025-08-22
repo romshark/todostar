@@ -8,11 +8,26 @@ import (
 	"github.com/romshark/todostar/pkg/timefmt"
 )
 
-templ htmlMain(title string) {
+templ htmlMain(title string, startDark bool) {
 	<!DOCTYPE html>
-	<html>
+	// startDark styles must be applied on both <html> and <body>,
+	// otherwise it doesn't work on Chrome/Chromium.
+	<html
+		lang="en"
+		if startDark {
+			style="opacity: 1 !important; background: #000;"
+		}
+		class="wa-cloak"
+	>
 		<head>
 			<title>{ title }</title>
+			if startDark {
+				<meta name="color-scheme" content="dark light"/>
+			} else {
+				<meta name="color-scheme" content="light dark"/>
+			}
+			<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000"/>
+			<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<meta charset="UTF-8"/>
 			<meta name="description" content="Todostar - a Datastar tech demo."/>
@@ -45,115 +60,149 @@ templ htmlMain(title string) {
 			</script>
 		</head>
 		<body
+			if startDark {
+				style="opacity: 1 !important; background: #000;"
+			}
 			data-signals="{
-				theme: localStorage.getItem('theme') || 'system',
-				themeisdark: false,
+				_theme: (document.cookie.match(/(?:^| )theme=([^;]+)/)?.[1]) || 'system',
+				_themeisdark: false,
 			}"
 			data-effect="
-				localStorage.setItem('theme', $theme);
-				$themeisdark = $theme === 'dark' ||
-					($theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
-    			document.documentElement.classList.toggle('dark', $themeisdark);
+				$_themeisdark = $_theme === 'dark' || (
+					$_theme === 'system' &&
+						matchMedia('(prefers-color-scheme: dark)').matches
+				);
+				document.cookie = 'theme=' + $_theme +
+					';path=/;max-age=31536000';
+				document.cookie = 'themeisdark=' + ($_themeisdark ? '1' : '0') +
+					';path=/;max-age=31536000';
+				document.documentElement.classList.toggle('dark', $_themeisdark);
 			"
-			data-on-system-theme-change="$themeisdark = event.detail"
-			data-class-wa-dark="$themeisdark"
+			data-on-load="el.style=''"
+			data-on-system-theme-change="$_themeisdark = evt.detail"
+			data-class-wa-dark="$_themeisdark"
 			class="
-				h-fit min-h-screen flex flex-col
+				h-fit min-h-screen flex flex-col items-center justify-between
 				bg-white text-black
 				dark:bg-stone-950 dark:text-stone-400
 			"
 		>
-			<nav
-				class="
-					flex flex-row p-2 w-full justify-between items-center
-					max-w-xl md:max-w-xl m-auto
-				"
-			>
-				<img
-					class="h-6"
-					src="/static/logo.svg"
-					alt="logo"
-					data-show="!$themeisdark"
-				/>
-				<img
-					class="h-6 opacity-60"
-					src="/static/logo_dark.svg"
-					alt="logo"
-					data-show="$themeisdark"
-				/>
-				@profileNavMenu()
-			</nav>
-			{ children... }
+			<div>
+				<nav class="flex flex-row p-2 w-full justify-between items-center max-w-xl md:max-w-xl">
+					<div
+						data-on-click="window.location = '/'"
+						class="hover:scale-110 transition cursor-pointer"
+					>
+						<img
+							class="h-6"
+							src="/static/logo.svg"
+							alt="logo"
+							data-show="!$_themeisdark"
+						/>
+						<img
+							class="h-6 opacity-60"
+							src="/static/logo_dark.svg"
+							alt="logo"
+							data-show="$_themeisdark"
+						/>
+					</div>
+					@profileNavMenu()
+				</nav>
+				<main class="container p-4 max-w-screen h-fit w-xl">
+					{ children... }
+				</main>
+			</div>
+			@footer()
 		</body>
 	</html>
 }
 
-templ PageIndex() {
-	@htmlMain("Todostar") {
-		// Load the todo list dynamically.
+templ PageIndex(startDark bool) {
+	@htmlMain("Todostar", startDark) {
 		@ViewIndex(nil)
-		<footer
-			class="
-			m-auto opacity-60 font-sans p-8
-			max-w-xl md:max-w-xl flex flex-col items-center"
-		>
-			<span>
-				<a target="_blank" href="https://github.com/romshark/todostar">
-					<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
-					Todostar
-				</a>
-				- a
-				<a target="_blank" href="https://data-star.dev">
-					Datastar
-				</a>
-				tech demo
-			</span>
-			<span>
-				Hand-crafted with 🫶 by
-				<a target="_blank" href="https://github.com/romshark">
-					<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
-					Roman Sharkov
-				</a>
-			</span>
-		</footer>
+	}
+}
+
+templ PageArchive(startDark bool) {
+	@htmlMain("Todostar | Archive", startDark) {
+		@ViewArchive(nil)
 	}
 }
 
 templ ViewIndex(todos []*domain.Todo) {
-	<div id="view-index" class="grow">
+	<div
+		id="view"
+		class="grow"
+		data-signals="{search: {term:''}}"
+	>
 		@PartDialogEdit(false, "", "")
 		@PartDialogNew(false, "", "")
-		<main
-			data-signals="{search: {term:''}}"
-			data-on-load="@get('/stream', {openWhenHidden: true})"
-			class="m-auto p-2 font-sans max-w-xl md:max-w-xl flex flex-col"
+		<div
+			class="flex flex-row gap-4 mb-2"
+			data-on-load="@get('/')"
+			data-on-input__debounce.200ms="@get('/')"
 		>
-			<div class="flex flex-row gap-4 mb-2">
-				<wa-input
-					class="grow"
-					placeholder="Search"
-					data-bind="search.term"
-					with-clear
-					data-on-input__debounce.200ms="@get('/stream')"
-				></wa-input>
-				<wa-button
-					data-effect="el.appearance = $themeisdark ? 'outlined' : ''"
-					data-on-click="el_dialogNew.open = true"
-				>
-					<wa-icon slot="start" name="plus"></wa-icon>
-					New
-				</wa-button>
-			</div>
-			if todos == nil {
-				// This placeholder will be patched by the server once
-				// GET /stream has been invoked.
-				<p id="todos">
-					loading todos...
-				</p>
-			} else {
-				@PartListTodos(todos)
-			}
-		</main>
+			<wa-input
+				class="grow"
+				placeholder="Search"
+				data-bind="search.term"
+				with-clear
+			></wa-input>
+			<wa-button
+				data-effect="el.appearance = $_themeisdark ? 'outlined' : ''"
+				data-on-click="el_dialogNew.open = true"
+			>
+				<wa-icon slot="start" name="plus"></wa-icon>
+				New
+			</wa-button>
+		</div>
+		if todos == nil {
+			// This placeholder will be patched by the server once
+			// GET / has been invoked.
+			<p
+				id="todos"
+				class="p-8 text-xl flex flex-row gap-4 justify-center items-center"
+			>
+				<wa-icon name="spinner" class="animate-spin"></wa-icon>
+				loading todos...
+			</p>
+		} else {
+			@PartListTodos(todos)
+		}
+	</div>
+}
+
+templ ViewArchive(todos []*domain.Todo) {
+	<div
+		id="view"
+		class="grow"
+		data-signals="{search: {term:''}}"
+	>
+		<div
+			class="flex flex-row gap-4 mb-2"
+			data-on-load="@get('/archive/')"
+			data-on-input__debounce.200ms="@get('/archive/')"
+		>
+			<wa-input
+				class="grow"
+				placeholder="Search archive"
+				data-bind="search.term"
+				with-clear
+			></wa-input>
+		</div>
+		if todos == nil {
+			// This placeholder will be patched by the server once
+			// GET /archive/ has been invoked.
+			<p
+				id="archived-todos"
+				class="p-8 text-xl flex flex-row gap-4 justify-center items-center"
+			>
+				<wa-icon name="spinner" class="animate-spin"></wa-icon>
+				loading archived todos...
+			</p>
+		} else {
+			@PartListArchivedTodos(todos)
+		}
 	</div>
 }
 
@@ -181,7 +230,7 @@ templ PartDialogNew(open bool, errTitle, errDescription string) {
 		</wa-button>
 		<div
 			class="flex flex-col gap-1"
-			data-on-change="@post('/form/new', {filterSignals: {include: /^new.*$/}})"
+			data-on-change="@post('/form/new/', {filterSignals: {include: /^new.+$/}})"
 		>
 			<div>
 				<wa-input
@@ -248,22 +297,22 @@ templ PartDialogEdit(open bool, errTitle, errDescription string) {
 		if open {
 			open
 		}
-		data-attr-label="`Editing Todo ${$editID}`"
+		data-attr-label="`Editing Todo ${$selectedTodoID}`"
 	>
 		<wa-button
 			slot="header-actions"
 			appearance="plain"
 			data-on-click="
-				$archived = true;
+				$editArchived = true;
+				@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})
 				el_dialogEdit.open = false;
-				@post(`/todo/${$editID}`)
 			"
 		>
 			<wa-icon name="archive" label="Archive this todo"></wa-icon>
 		</wa-button>
 		<div
 			class="flex flex-col gap-1"
-			data-on-change="@post('/form/edit', {filterSignals: {include: /^edit.*$/}})"
+			data-on-change="@post('/form/edit/', {filterSignals: {include: /^edit.+$/}})"
 		>
 			<wa-checkbox
 				data-on-input="$editChecked = el.checked"
@@ -321,9 +370,31 @@ templ PartDialogEdit(open bool, errTitle, errDescription string) {
 		<wa-button
 			slot="footer"
 			variant="success"
-			data-on-click="@post(`/todo/${$editID}`); el_dialogEdit.open = false"
+			data-on-click="
+				@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|edit(?!Archive).+)$/}});
+				el_dialogEdit.open = false
+			"
 		>Save Changes</wa-button>
 	</wa-dialog>
+}
+
+templ PartListArchivedTodos(todos []*domain.Todo) {
+	<div id="archived-todos">
+		<p class="mb-2 text-sm">
+			{ fmt.Sprintf("Found %d archived todo(s)", len(todos)) }
+		</p>
+		if len(todos) < 1 {
+			<p class=" w-full text-center p-4">
+				No archived todos found.
+			</p>
+		} else {
+			<ul class="list-none flex flex-col gap-2 ">
+				for _, todo := range todos {
+					@todoArchivedListItem(todo)
+				}
+			</ul>
+		}
+	</div>
 }
 
 templ PartListTodos(todos []*domain.Todo) {
@@ -335,11 +406,11 @@ templ PartListTodos(todos []*domain.Todo) {
 			) }
 		</p>
 		if len(todos) < 1 {
-			<p class="m-auto w-full text-center p-4">
+			<p class=" w-full text-center p-4">
 				No todos found.
 			</p>
 		} else {
-			<ul class="list-none flex flex-col gap-2 m-auto">
+			<ul class="list-none flex flex-col gap-2 ">
 				for _, todo := range todos {
 					@todoListItem(todo)
 				}
@@ -364,22 +435,43 @@ templ tooltip(text string) {
 }
 
 templ todoListItem(todo *domain.Todo) {
-	<li class="border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0">
+	<li
+		class="border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0"
+		data-signals={ fmt.Sprintf(`{_todo_%d: {
+			checked: %t,
+			title: %q,
+			description: %q,
+			due: %q,
+		}}`,
+			todo.ID,
+			todo.Status == domain.StatusDone,
+			todo.Title,
+			todo.Description,
+			timefmt.DateTimeStr(todo.Due),
+		) }
+	>
 		<div class="flex flex-row gap-1 p-2">
+			// <wa-checkbox> does not reflect its checked property and only affects
+			// the initial render. As a result, Datastar morphing will not sync
+			// using the attribute. Set the el.checked property explicitly via
+			// data-effect which is executed on every morph.
 			<wa-checkbox
 				class="pt-1.5"
 				data-on-input={ fmt.Sprintf(
-					`$editChecked = el.checked; @post('/todo/%d', {
-						filterSignals: {exclude: /^edit(?!Checked).*$/},
+					`$selectedTodoID = %d; $editChecked = el.checked; @post('/todo/', {
+						filterSignals: {include: /^(selectedTodoID|editChecked)$/},
 					})`, todo.ID,
 				) }
 				if todo.Status == domain.StatusDone {
 					checked
 				}
+				data-effect={ fmt.Sprintf(
+					"el.checked = %t", todo.Status == domain.StatusDone,
+				) }
 			></wa-checkbox>
 			<div class="flex flex-col grow">
 				<div class="flex flex-row gap-2 justify-between items-start">
-					<p class="font-semibold h-8 leading-8 m-0 p-0">
+					<p class="font-semibold h-8 leading-8 m-0 p-0 min-h-fit">
 						<span
 							if todo.Status == domain.StatusDone {
 								class="line-through"
@@ -390,24 +482,12 @@ templ todoListItem(todo *domain.Todo) {
 					</p>
 					<div class="flex flex-row justify-between">
 						<div
-							data-signals={ fmt.Sprintf(`{todo_%d: {
-								checked: %t,
-								title: %q,
-								description: %q,
-								due: %q,
-							}}`,
-								todo.ID,
-								todo.Status == domain.StatusDone,
-								todo.Title,
-								todo.Description,
-								timefmt.DateTimeStr(todo.Due),
-							) }
 							data-on-click={ fmt.Sprintf(
-								`$editID = %d;
-								$editChecked = $todo_%d.checked;
-								$editTitle = $todo_%d.title;
-								$editDescription = $todo_%d.description;
-								$editDue = $todo_%d.due;
+								`$selectedTodoID = %d;
+								$editChecked = $_todo_%d.checked;
+								$editTitle = $_todo_%d.title;
+								$editDescription = $_todo_%d.description;
+								$editDue = $_todo_%d.due;
 								el_dialogEdit.open = true;`,
 								todo.ID, todo.ID, todo.ID, todo.ID, todo.ID,
 							) }
@@ -418,7 +498,11 @@ templ todoListItem(todo *domain.Todo) {
 						</div>
 						<div
 							data-on-click={ fmt.Sprintf(
-								`$archived = true; @post('/todo/%d')`, todo.ID,
+								`$selectedTodoID = %d; $editArchived = true;
+								@post('/todo/', {filterSignals: {
+									include: /^(selectedTodoID|editArchived)$/
+								}})
+								`, todo.ID,
 							) }
 						>
 							<wa-button appearance="plain">
@@ -464,6 +548,88 @@ templ todoListItem(todo *domain.Todo) {
 	</li>
 }
 
+templ todoArchivedListItem(todo *domain.Todo) {
+	<li class="border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0">
+		<div class="flex flex-row gap-1 p-2">
+			<wa-checkbox
+				class="pt-1.5"
+				if todo.Status == domain.StatusDone {
+					checked
+				}
+				disabled
+			></wa-checkbox>
+			<div class="flex flex-col grow">
+				<div class="flex flex-row gap-2 justify-between items-start">
+					<p class="font-semibold h-8 leading-8 m-0 p-0 min-h-fit">
+						<span
+							if todo.Status == domain.StatusDone {
+								class="line-through"
+							}
+						>
+							{ todo.Title }
+						</span>
+					</p>
+					<div class="flex flex-row justify-between">
+						<wa-button
+							appearance="plain"
+							data-on-click={ fmt.Sprintf(
+									`$selectedTodoID = %d; $editArchived = false;
+									@post('/todo/', {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})
+									`, todo.ID,
+								) }
+						>
+							<wa-icon
+								name="arrow-rotate-left"
+								label="Restore"
+							></wa-icon>
+						</wa-button>
+						<wa-button
+							appearance="plain"
+							data-on-click={ fmt.Sprintf(`
+								$selectedTodoID = %d;
+								@delete('/todo/', {
+									filterSignals: {include: /^selectedTodoID$/}
+								})
+							`, todo.ID) }
+						>
+							<wa-icon name="trash" label="Delete"></wa-icon>
+						</wa-button>
+					</div>
+				</div>
+				if todo.Status != domain.StatusDone {
+					<p class="whitespace-pre-wrap p-0 m-0 pr-4">{ todo.Description }</p>
+					if !todo.Due.IsZero() {
+						<div class="flex flex-row gap-2 pb-2 pt-2 flex-wrap">
+							@tooltip(todo.Created.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag variant="neutral">
+									if dueDateOver(time.Now(), todo.Due) {
+										<wa-icon name="clock"></wa-icon>
+										due on
+										{ todo.Due.Format("Monday, Jan _2 2006") }
+									} else {
+										was due on { todo.Due.Format("Monday, Jan _2 2006") }
+									}
+								</wa-tag>
+							}
+							@tooltip(todo.Created.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag variant="neutral">
+									Created { timefmt.Dur(
+										-todo.Created.Sub(time.Now()),
+									) } ago
+								</wa-tag>
+							}
+						</div>
+					}
+				}
+			</div>
+		</div>
+	</li>
+}
+
 templ validationError() {
 	<div class="text-red-500 flex flex-row gap-0.5 items-center">
 		<wa-icon name="circle-exclamation"></wa-icon>
@@ -479,24 +645,49 @@ templ profileNavMenu() {
 		>
 			<wa-icon name="user" label="Main Menu"></wa-icon>
 		</wa-button>
-		<wa-dropdown-item value="cut" disabled>
+		<wa-dropdown-item data-on-click="window.location = '/archive/'">
 			<wa-icon slot="icon" name="archive" label="Archive"></wa-icon>
 			Archive
 		</wa-dropdown-item>
 		<h3>Theme</h3>
-		<wa-dropdown-item data-on-click="$theme = 'light'">
+		<wa-dropdown-item data-on-click="$_theme = 'light'">
 			<wa-icon slot="icon" name="sun" label="Light Theme"></wa-icon>
 			Light
 		</wa-dropdown-item>
-		<wa-dropdown-item data-on-click="$theme = 'dark'">
+		<wa-dropdown-item data-on-click="$_theme = 'dark'">
 			<wa-icon slot="icon" name="moon" label="Dark Theme"></wa-icon>
 			Dark
 		</wa-dropdown-item>
-		<wa-dropdown-item
-			data-on-click="$theme = 'system'"
-		>
+		<wa-dropdown-item data-on-click="$_theme = 'system'">
 			<wa-icon slot="icon" name="desktop" label="System Theme"></wa-icon>
 			System
 		</wa-dropdown-item>
 	</wa-dropdown>
+}
+
+templ footer() {
+	<footer
+		class="
+			 opacity-60 font-sans p-8
+			max-w-xl md:max-w-xl flex flex-col items-center"
+	>
+		<span>
+			<a target="_blank" href="https://github.com/romshark/todostar">
+				<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
+				Todostar
+			</a>
+			- a
+			<a target="_blank" href="https://data-star.dev">
+				Datastar
+			</a>
+			tech demo
+		</span>
+		<span>
+			Hand-crafted with 🫶 by
+			<a target="_blank" href="https://github.com/romshark">
+				<wa-icon class="text-sm" family="brands" name="github"></wa-icon>
+				Roman Sharkov
+			</a>
+		</span>
+	</footer>
 }
