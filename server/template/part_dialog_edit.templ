@@ -1,0 +1,88 @@
+package template
+
+templ PartDialogEdit(open bool, errTitle, errDescription string) {
+	<wa-dialog
+		id="el_dialogEdit"
+		if open {
+			open
+		}
+		data-attr-label="`Editing Todo ${$selectedTodoID}`"
+	>
+		<wa-button
+			slot="header-actions"
+			appearance="plain"
+			data-on-click="
+				$editArchived = true;
+				@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})
+				el_dialogEdit.open = false;
+			"
+		>
+			<wa-icon name="archive" label="Archive this todo"></wa-icon>
+		</wa-button>
+		<div
+			class="flex flex-col gap-1"
+			data-on-change="@post('/form/edit/', {filterSignals: {include: /^edit.+$/}})"
+		>
+			<wa-checkbox
+				data-on-input="$editChecked = el.checked"
+				data-effect="el.checked = $editChecked"
+				data-attr-hint="
+					$editChecked ? 'Closed, but can be reopened' : 'Still open'
+				"
+			>Done</wa-checkbox>
+			<div>
+				<wa-input
+					label="Title"
+					hint="Required"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$editTitle = el.value"
+					data-effect="el.value = $editTitle"
+				></wa-input>
+				if errTitle != "" {
+					@validationError() {
+						<p>{ errTitle }</p>
+					}
+				}
+			</div>
+			<div>
+				<wa-textarea
+					label="Description"
+					hint="The description is optional"
+					resize="auto"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$editDescription = el.value"
+					data-effect="el.value = $editDescription"
+				></wa-textarea>
+				if errDescription != "" {
+					@validationError() {
+						<p>{ errDescription }</p>
+					}
+				}
+			</div>
+			<wa-input
+				label="Due"
+				type="datetime-local"
+				hint="By when must this be done?"
+				resize="auto"
+				appearance="filled"
+				with-clear
+				data-on-input="$editDue = el.value"
+				data-effect="el.value = $editDue.split('+')[0]"
+			></wa-input>
+		</div>
+		<wa-button
+			slot="footer"
+			data-on-click="el_dialogEdit.open = false"
+		>Cancel</wa-button>
+		<wa-button
+			slot="footer"
+			variant="success"
+			data-on-click="
+				@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|edit(?!Archive).+)$/}});
+				el_dialogEdit.open = false
+			"
+		>Save Changes</wa-button>
+	</wa-dialog>
+}

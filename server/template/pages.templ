@@ -1,0 +1,13 @@
+package template
+
+templ PageIndex(startDark bool) {
+	@htmlMain("Todostar", startDark) {
+		@ViewIndex(nil)
+	}
+}
+
+templ PageArchive(startDark bool) {
+	@htmlMain("Todostar | Archive", startDark) {
+		@ViewArchive(nil)
+	}
+}

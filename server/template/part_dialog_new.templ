@@ -1,0 +1,86 @@
+package template
+
+templ PartDialogNew(open bool, errTitle, errDescription string) {
+	<wa-dialog
+		id="el_dialogNew"
+		label="Create new todo"
+		if open {
+			open
+		}
+		light-dismiss
+	>
+		<wa-button
+			slot="header-actions"
+			appearance="plain"
+			data-on-click="
+				$newTitle = null;
+				$newDescription = null;
+				$newDue = null;
+				$eEgg++;
+			"
+			data-effect="if ($eEgg >= 10) { $eEgg = 0; alert('Ha! gotcha, QA!') }"
+		>
+			<wa-icon name="circle-xmark" label="Reset all inputs"></wa-icon>
+		</wa-button>
+		<div
+			class="flex flex-col gap-1"
+			data-on-change="@post('/form/new/', {filterSignals: {include: /^new.+$/}})"
+		>
+			<div>
+				<wa-input
+					label="Title"
+					hint="Required"
+					placeholder="Summary"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$newTitle = el.value"
+					data-effect="el.value = $newTitle"
+				></wa-input>
+				if errTitle != "" {
+					@validationError() {
+						<p>{ errTitle }</p>
+					}
+				}
+			</div>
+			<div>
+				<wa-textarea
+					label="Description"
+					placeholder="More info…"
+					hint="The description is optional"
+					resize="auto"
+					appearance="filled"
+					autocomplete="off"
+					data-on-input="$newDescription = el.value"
+					data-effect="el.value = $newDescription"
+				></wa-textarea>
+				if errDescription != "" {
+					@validationError() {
+						<p>{ errDescription }</p>
+					}
+				}
+			</div>
+			<wa-input
+				label="Due"
+				type="datetime-local"
+				with-clear
+				hint="By when must this be done?"
+				resize="auto"
+				appearance="filled"
+				data-on-input="$newDue = el.value"
+				data-effect="el.value = $newDue"
+			></wa-input>
+		</div>
+		<wa-button
+			slot="footer"
+			data-on-click="el_dialogNew.open = false"
+		>Cancel</wa-button>
+		<wa-button
+			slot="footer"
+			variant="success"
+			data-on-click="@put('/todo'); el_dialogNew.open = false"
+			if errTitle != "" || errDescription != "" {
+				disabled
+			}
+		>Create</wa-button>
+	</wa-dialog>
+}

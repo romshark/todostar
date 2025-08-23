@@ -1,0 +1,37 @@
+package template
+
+import "github.com/romshark/todostar/domain"
+
+templ ViewArchive(todos []*domain.Todo) {
+	<div
+		id="view"
+		class="grow"
+		data-signals="{search: {term:''}}"
+	>
+		<div
+			class="flex flex-row gap-4 mb-2"
+			data-on-load="@get('/archive/')"
+			data-on-input__debounce.200ms="@get('/archive/')"
+		>
+			<wa-input
+				class="grow"
+				placeholder="Search archive"
+				data-bind="search.term"
+				with-clear
+			></wa-input>
+		</div>
+		if todos == nil {
+			// This placeholder will be patched by the server once
+			// GET /archive/ has been invoked.
+			<p
+				id="archived-todos"
+				class="p-8 text-xl flex flex-row gap-4 justify-center items-center"
+			>
+				<wa-icon name="spinner" class="animate-spin"></wa-icon>
+				loading archived todos...
+			</p>
+		} else {
+			@PartArchivedTodos(todos)
+		}
+	</div>
+}

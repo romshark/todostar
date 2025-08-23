@@ -14,3 +14,13 @@ a {
 @view-transition {
   navigation: auto;
 }
+
+@keyframes animAppear {
+  from {
+    opacity: 0;
+    translate: 0 1rem;
+  }
+  to {
+    opacity: 1;
+  }
+}

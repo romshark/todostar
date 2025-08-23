@@ -3,34 +3,14 @@ package request
 import (
 	"log/slog"
 	"net/http"
-	"strconv"
+
+	"github.com/a-h/templ"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
-// PathValue parses the path value for name and returns (data,true),
-// otherwise returns (data,false) indicating that processing the request
-// should be aborted immediately.
-func PathValue[T ~string | ~int64](
-	w http.ResponseWriter, r *http.Request, name string,
-) (T, bool) {
-	var zero T
-	v := r.PathValue(name)
-	if v == "" {
-		http.Error(w, "missing path value: "+name, http.StatusBadRequest)
-		return zero, false
-	}
-	switch any(zero).(type) {
-	case string:
-		return any(v).(T), true
-	case int64:
-		x, err := strconv.ParseInt(v, 10, 64)
-		if IfErrBadRequest(w, err, "invalid path value") {
-			return zero, false
-		}
-		return any(x).(T), true
-	default:
-		http.Error(w, "unsupported type", http.StatusBadRequest)
-		return zero, false
-	}
+// IsDS returns true if this request was made by Datastar.
+func IsDS(r *http.Request) bool {
+	return r.Header.Get("Datastar-Request") == "true"
 }
 
 func IfErrInternal(w http.ResponseWriter, err error, msg string) (stop bool) {
@@ -62,6 +42,55 @@ func IfErrBadRequest(w http.ResponseWriter, err error, msg string) (stop bool) {
 func ThemeIsDark(r *http.Request) bool {
 	c, err := r.Cookie("themeisdark")
 	if err != nil || c.Value != "1" {
+		return false
+	}
+	return true
+}
+
+type SSEHandle struct {
+	sse *datastar.ServerSentEventGenerator
+}
+
+func SSE(w http.ResponseWriter, r *http.Request, opts ...datastar.SSEOption) SSEHandle {
+	return SSEHandle{sse: datastar.NewSSE(w, r, opts...)}
+}
+
+// Patch patches an element on the page.
+func (h SSEHandle) Patch(
+	comp templ.Component, compName string,
+	options ...datastar.PatchElementOption,
+) (ok bool) {
+	if err := h.sse.PatchElementTempl(comp, options...); err != nil {
+		slog.Error("patch", slog.String("component", compName), slog.Any("err", err))
+		return false
+	}
+	return true
+}
+
+// Remove removes an element on the page by selector.
+func (h SSEHandle) Remove(
+	selector string, opts ...datastar.PatchElementOption,
+) (ok bool) {
+	if err := h.sse.RemoveElement(selector, opts...); err != nil {
+		slog.Error("patch remove", slog.String("selector", selector), slog.Any("err", err))
+		return false
+	}
+	return true
+}
+
+// Wait waits until the sse request is canceled.
+func (h SSEHandle) Wait() { <-h.sse.Context().Done() }
+
+func (h SSEHandle) AppendInto(
+	containerSelector string, comp templ.Component, compName string,
+) (ok bool) {
+	if err := h.sse.PatchElementTempl(comp,
+		datastar.WithModeInner(),
+		datastar.WithModeAppend(),
+		datastar.WithSelector(containerSelector)); err != nil {
+		slog.Error("patch append into",
+			slog.String("container selector", containerSelector),
+			slog.Any("err", err))
 		return false
 	}
 	return true

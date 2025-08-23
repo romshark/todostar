@@ -1,0 +1,118 @@
+package template
+
+import (
+	"fmt"
+	"github.com/romshark/todostar/domain"
+	"github.com/romshark/todostar/pkg/timefmt"
+	"time"
+)
+
+templ PartArchivedTodos(todos []*domain.Todo) {
+	<div id="archived-todos">
+		<p class="mb-2 text-sm">
+			{ fmt.Sprintf("Found %d archived todo(s)", len(todos)) }
+		</p>
+		if todos != nil && len(todos) < 1 {
+			<p class=" w-full text-center p-4">
+				No archived todos found.
+			</p>
+		} else {
+			@PartArchivedTodosList(todos)
+		}
+	</div>
+}
+
+templ PartArchivedTodosList(todos []*domain.Todo) {
+	<ul id="archived-todos-list" class="list-none flex flex-col gap-2">
+		for _, todo := range todos {
+			@PartArchivedTodosListItem(todo)
+		}
+	</ul>
+}
+
+templ PartArchivedTodosListItem(todo *domain.Todo) {
+	<li
+		class="
+			border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0
+			animate-[animAppear_.3s_ease-out_forwards]
+		"
+	>
+		<div class="flex flex-row gap-1 p-2">
+			<wa-checkbox
+				class="pt-1.5"
+				if todo.Status == domain.StatusDone {
+					checked
+				}
+				disabled
+			></wa-checkbox>
+			<div class="flex flex-col grow">
+				<div class="flex flex-row gap-2 justify-between items-start">
+					<p class="font-semibold h-8 leading-8 m-0 p-0 min-h-fit">
+						<span
+							if todo.Status == domain.StatusDone {
+								class="line-through"
+							}
+						>
+							{ todo.Title }
+						</span>
+					</p>
+					<div class="flex flex-row justify-between">
+						<wa-button
+							appearance="plain"
+							data-on-click={ fmt.Sprintf(
+									`$selectedTodoID = %d; $editArchived = false;
+									@post('/todo/', {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})
+									`, todo.ID,
+								) }
+						>
+							<wa-icon
+								name="arrow-rotate-left"
+								label="Restore"
+							></wa-icon>
+						</wa-button>
+						<wa-button
+							appearance="plain"
+							data-on-click={ fmt.Sprintf(`
+								$selectedTodoID = %d;
+								@delete('/todo/', {
+									filterSignals: {include: /^selectedTodoID$/}
+								})
+							`, todo.ID) }
+						>
+							<wa-icon name="trash" label="Delete"></wa-icon>
+						</wa-button>
+					</div>
+				</div>
+				if todo.Status != domain.StatusDone {
+					<p class="whitespace-pre-wrap p-0 m-0 pr-4">{ todo.Description }</p>
+					if !todo.Due.IsZero() {
+						<div class="flex flex-row gap-2 pb-2 pt-2 flex-wrap">
+							@tooltip(todo.Created.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag variant="neutral">
+									if dueDateOver(time.Now(), todo.Due) {
+										<wa-icon name="clock"></wa-icon>
+										due on
+										{ todo.Due.Format("Monday, Jan _2 2006") }
+									} else {
+										was due on { todo.Due.Format("Monday, Jan _2 2006") }
+									}
+								</wa-tag>
+							}
+							@tooltip(todo.Created.Format(
+								"Monday, Jan _2 2006 - 15:04:05",
+							)) {
+								<wa-tag variant="neutral">
+									Created { timefmt.Dur(
+										-todo.Created.Sub(time.Now()),
+									) } ago
+								</wa-tag>
+							}
+						</div>
+					}
+				}
+			</div>
+		</div>
+	</li>
+}

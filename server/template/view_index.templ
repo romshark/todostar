@@ -1,0 +1,46 @@
+package template
+
+import "github.com/romshark/todostar/domain"
+
+templ ViewIndex(todos []*domain.Todo) {
+	<div
+		id="view"
+		class="grow"
+		data-signals="{search: {term:''}}"
+	>
+		@PartDialogEdit(false, "", "")
+		@PartDialogNew(false, "", "")
+		<div
+			class="flex flex-row gap-4 mb-2"
+			data-on-load="@get('/')"
+			data-on-input__debounce.200ms="@get('/')"
+		>
+			<wa-input
+				class="grow"
+				placeholder="Search"
+				data-bind="search.term"
+				with-clear
+			></wa-input>
+			<wa-button
+				data-effect="el.appearance = $_themeisdark ? 'outlined' : ''"
+				data-on-click="el_dialogNew.open = true"
+			>
+				<wa-icon slot="start" name="plus"></wa-icon>
+				New
+			</wa-button>
+		</div>
+		if todos == nil {
+			// This placeholder will be patched by the server once
+			// GET / has been invoked.
+			<p
+				id="todos"
+				class="p-8 text-xl flex flex-row gap-4 justify-center items-center"
+			>
+				<wa-icon name="spinner" class="animate-spin"></wa-icon>
+				loading todos...
+			</p>
+		} else {
+			@PartTodos(todos)
+		}
+	</div>
+}
