@@ -27,4 +27,4 @@ test: checkfmt checkgen
 	go test ./... -v
 
 templier:
-	go run github.com/romshark/templier/@latest
+	go run github.com/romshark/templier@latest
