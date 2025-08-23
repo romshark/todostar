@@ -46,7 +46,7 @@ func (s *Server) getArchive(w http.ResponseWriter, r *http.Request) {
 		sse.AppendInto("#archived-todos-list",
 			template.PartTodosListItem(todo), "part archived todos list item")
 		if i+1 < len(todos) {
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(80 * time.Millisecond)
 		}
 	}
 
