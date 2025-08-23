@@ -10,6 +10,12 @@
   "gopls": {
     "formatting.gofumpt": true
   },
+  
+  // Hide generated templ Go files since they're almost never interesting to
+  // look at and just keep getting in the way.
+  "files.exclude": {
+    "**/*_templ.go": true
+  },
 
   "editor.quickSuggestions": {
     "strings": "on"
