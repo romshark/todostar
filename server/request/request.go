@@ -67,31 +67,5 @@ func (h SSEHandle) Patch(
 	return true
 }
 
-// Remove removes an element on the page by selector.
-func (h SSEHandle) Remove(
-	selector string, opts ...datastar.PatchElementOption,
-) (ok bool) {
-	if err := h.sse.RemoveElement(selector, opts...); err != nil {
-		slog.Error("patch remove", slog.String("selector", selector), slog.Any("err", err))
-		return false
-	}
-	return true
-}
-
 // Wait waits until the sse request is canceled.
 func (h SSEHandle) Wait() { <-h.sse.Context().Done() }
-
-func (h SSEHandle) AppendInto(
-	containerSelector string, comp templ.Component, compName string,
-) (ok bool) {
-	if err := h.sse.PatchElementTempl(comp,
-		datastar.WithModeInner(),
-		datastar.WithModeAppend(),
-		datastar.WithSelector(containerSelector)); err != nil {
-		slog.Error("patch append into",
-			slog.String("container selector", containerSelector),
-			slog.Any("err", err))
-		return false
-	}
-	return true
-}
