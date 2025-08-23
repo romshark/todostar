@@ -31,4 +31,6 @@ Hypermedia Rocks 🤘
 
 - Install [bun](https://bun.com/) (only needed for TailwindCSS).
 - run `bun i`.
-- run `make templier` and start coding.
+- run `make templier`, open `localhost:7331` and start coding.
+
+ℹ️ The actual server behind templier's proxy is reachable over `localhost:8080`.
