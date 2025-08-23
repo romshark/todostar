@@ -54,7 +54,7 @@ func htmlMain(title string, startDark bool) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 23, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 23, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -366,7 +366,7 @@ func PartDialogNew(open bool, errTitle, errDescription string) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(errTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 247, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 247, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -407,7 +407,7 @@ func PartDialogNew(open bool, errTitle, errDescription string) templ.Component {
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(errDescription)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 264, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 264, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -497,7 +497,7 @@ func PartDialogEdit(open bool, errTitle, errDescription string) templ.Component 
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(errTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 335, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 335, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -538,7 +538,7 @@ func PartDialogEdit(open bool, errTitle, errDescription string) templ.Component 
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(errDescription)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 351, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 351, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -591,7 +591,7 @@ func PartListArchivedTodos(todos []*domain.Todo) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Found %d archived todo(s)", len(todos)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 384, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 384, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -661,7 +661,7 @@ func PartListTodos(todos []*domain.Todo) templ.Component {
 			len(todos), percentDone(todos),
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 406, Col: 4}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 406, Col: 4}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -736,7 +736,7 @@ func tooltip(text string) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 432, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 432, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -789,7 +789,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 			timefmt.DateTimeStr(todo.Due),
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 451, Col: 3}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 451, Col: 3}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -806,7 +806,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 					})`, todo.ID,
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 464, Col: 5}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 464, Col: 5}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -831,7 +831,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 			"el.checked = %t", todo.Status == domain.StatusDone,
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 470, Col: 5}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 470, Col: 5}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -854,7 +854,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 480, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 480, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -875,7 +875,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 			todo.ID, todo.ID, todo.ID, todo.ID, todo.ID,
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 493, Col: 8}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 493, Col: 8}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -894,7 +894,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 								`, todo.ID,
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 506, Col: 8}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 506, Col: 8}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -912,7 +912,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 515, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 515, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
@@ -967,7 +967,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(timefmt.Due(time.Now(), todo.Due))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 531, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 531, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -1006,7 +1006,7 @@ func todoListItem(todo *domain.Todo) templ.Component {
 						-todo.Created.Sub(time.Now()),
 					))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 540, Col: 10}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 540, Col: 10}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -1086,7 +1086,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 569, Col: 19}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 569, Col: 19}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
@@ -1103,7 +1103,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 									`, todo.ID,
 		))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 579, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 579, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -1121,7 +1121,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 								})
 							`, todo.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 593, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 593, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 		if templ_7745c5c3_Err != nil {
@@ -1139,7 +1139,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 600, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 600, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -1178,7 +1178,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 						var templ_7745c5c3_Var43 string
 						templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Due.Format("Monday, Jan _2 2006"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 610, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 610, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 						if templ_7745c5c3_Err != nil {
@@ -1192,7 +1192,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 						var templ_7745c5c3_Var44 string
 						templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(todo.Due.Format("Monday, Jan _2 2006"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 612, Col: 61}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 612, Col: 61}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 						if templ_7745c5c3_Err != nil {
@@ -1232,7 +1232,7 @@ func todoArchivedListItem(todo *domain.Todo) templ.Component {
 						-todo.Created.Sub(time.Now()),
 					))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/template.templ`, Line: 622, Col: 10}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `template.templ`, Line: 622, Col: 10}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 					if templ_7745c5c3_Err != nil {
