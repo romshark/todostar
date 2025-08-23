@@ -28,3 +28,10 @@ test: checkfmt checkgen
 
 templier:
 	go run github.com/romshark/templier@latest
+
+scc:
+	go run github.com/boyter/scc/v3@latest . \
+		--exclude-dir node_modules \
+		--exclude-dir server/static \
+		--not-match '_templ\.go$$' \
+		--not-match '_gen\.go$$'

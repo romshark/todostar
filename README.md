@@ -11,7 +11,9 @@ Todostar is a collaborative todo tech-demo app hand-crafted using:
 - [WebAwesome](https://webawesome.com/) web components.
 - [Templier](https://github.com/romshark/templier) hot-reloader.
 
-This is a server-driven web application in just ~2k LoC of Go and minimal JavaScript.
+This is a server-driven web application in just ~2k LoC of Go (use `make scc` to count)
+and minimal JavaScript.
+
 The only thing I use [bun](https://bun.com/) for is building the tailwind bundle.
 Hypermedia Rocks 🤘
 
