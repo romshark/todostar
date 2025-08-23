@@ -77,7 +77,13 @@ templ PartDialogNew(open bool, errTitle, errDescription string) {
 		<wa-button
 			slot="footer"
 			variant="success"
-			data-on-click="@put('/todo'); el_dialogNew.open = false"
+			data-on-click="
+				@put('/todo');
+				$newTitle = null;
+				$newDescription = null;
+				$newDue = null;
+				el_dialogNew.open = false
+			"
 			if errTitle != "" || errDescription != "" {
 				disabled
 			}

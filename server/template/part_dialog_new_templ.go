@@ -121,7 +121,7 @@ func PartDialogNew(open bool, errTitle, errDescription string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><wa-input label=\"Due\" type=\"datetime-local\" with-clear hint=\"By when must this be done?\" resize=\"auto\" appearance=\"filled\" data-on-input=\"$newDue = el.value\" data-effect=\"el.value = $newDue\"></wa-input></div><wa-button slot=\"footer\" data-on-click=\"el_dialogNew.open = false\">Cancel</wa-button> <wa-button slot=\"footer\" variant=\"success\" data-on-click=\"@put('/todo'); el_dialogNew.open = false\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><wa-input label=\"Due\" type=\"datetime-local\" with-clear hint=\"By when must this be done?\" resize=\"auto\" appearance=\"filled\" data-on-input=\"$newDue = el.value\" data-effect=\"el.value = $newDue\"></wa-input></div><wa-button slot=\"footer\" data-on-click=\"el_dialogNew.open = false\">Cancel</wa-button> <wa-button slot=\"footer\" variant=\"success\" data-on-click=\"\n\t\t\t\t@put('/todo');\n\t\t\t\t$newTitle = null;\n\t\t\t\t$newDescription = null;\n\t\t\t\t$newDue = null;\n\t\t\t\tel_dialogNew.open = false\n\t\t\t\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
