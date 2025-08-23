@@ -3,7 +3,6 @@ package server
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/romshark/todostar/domain"
 	"github.com/romshark/todostar/events"
@@ -38,16 +37,7 @@ func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// First patch the shim.
-	sse.Patch(template.PartTodos(nil), "part list todos") // Shim
-	// And then patch each element with a short delay for animation.
-	for i, todo := range todos {
-		sse.AppendInto("#todos-list",
-			template.PartTodosListItem(todo), "part todos list item")
-		if i+1 < len(todos) {
-			time.Sleep(80 * time.Millisecond)
-		}
-	}
+	sse.Patch(template.PartTodos(todos), "part list todos")
 
 	// Subscribe and keep updating the view until the connection is closed.
 	sub := events.OnTodosChanged(func(etc events.EventTodosChanged) {

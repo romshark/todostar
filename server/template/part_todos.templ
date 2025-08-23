@@ -15,7 +15,7 @@ templ PartTodos(todos []*domain.Todo) {
 				len(todos), percentDone(todos),
 			) }
 		</p>
-		if todos != nil && len(todos) < 1 {
+		if len(todos) < 1 {
 			<p class=" w-full text-center p-4">
 				No todos found.
 			</p>
@@ -27,17 +27,19 @@ templ PartTodos(todos []*domain.Todo) {
 
 templ PartTodosList(todos []*domain.Todo) {
 	<ul id="todos-list" class="list-none flex flex-col gap-2">
-		for _, todo := range todos {
-			@PartTodosListItem(todo)
+		for i, todo := range todos {
+			@PartTodosListItem(i, todo)
 		}
 	</ul>
 }
 
-templ PartTodosListItem(todo *domain.Todo) {
+templ PartTodosListItem(i int, todo *domain.Todo) {
 	<li
+		style={ fmt.Sprintf("--i: %d", i+1) }
 		class="
-			border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0
-			animate-[animAppear_.3s_ease-out_forwards]
+			animatedAppear
+			opacity-100 border rounded shadow-sm m-0
+			border-stone-300 dark:border-stone-700
 		"
 		data-signals={ fmt.Sprintf(`{_todo_%d: {
 			checked: %t,

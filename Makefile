@@ -1,10 +1,10 @@
-vulncheck:
+checkvuln:
 	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
 dist:
 	bun run build:css
 
-fmtcheck:
+checkfmt:
 	@unformatted=$$(go run mvdan.cc/gofumpt@latest -l .); \
 	if [ -n "$$unformatted" ]; then \
 		echo "Files not gofumpt formatted:"; \
@@ -12,7 +12,7 @@ fmtcheck:
 		exit 1; \
 	fi
 
-gencheck:
+checkgen:
 	@go generate ./...
 	@if ! git diff --quiet --exit-code; then \
 		echo "Generated files are not up to date. Run 'go generate ./...'"; \
@@ -23,7 +23,7 @@ gencheck:
 lint:
 	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest run ./...
 
-test: fmtcheck gencheck
+test: checkfmt checkgen
 	go test ./... -v
 
 templier:

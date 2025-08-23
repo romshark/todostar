@@ -12,7 +12,7 @@ templ PartArchivedTodos(todos []*domain.Todo) {
 		<p class="mb-2 text-sm">
 			{ fmt.Sprintf("Found %d archived todo(s)", len(todos)) }
 		</p>
-		if todos != nil && len(todos) < 1 {
+		if len(todos) < 1 {
 			<p class=" w-full text-center p-4">
 				No archived todos found.
 			</p>
@@ -24,17 +24,18 @@ templ PartArchivedTodos(todos []*domain.Todo) {
 
 templ PartArchivedTodosList(todos []*domain.Todo) {
 	<ul id="archived-todos-list" class="list-none flex flex-col gap-2">
-		for _, todo := range todos {
-			@PartArchivedTodosListItem(todo)
+		for i, todo := range todos {
+			@PartArchivedTodosListItem(i, todo)
 		}
 	</ul>
 }
 
-templ PartArchivedTodosListItem(todo *domain.Todo) {
+templ PartArchivedTodosListItem(i int, todo *domain.Todo) {
 	<li
+		style={ fmt.Sprintf("--i: %d", i+1) }
 		class="
+			animatedAppear
 			border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0
-			animate-[animAppear_.3s_ease-out_forwards]
 		"
 	>
 		<div class="flex flex-row gap-1 p-2">

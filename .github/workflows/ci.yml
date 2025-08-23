@@ -19,13 +19,13 @@ jobs:
         run: go install mvdan.cc/gofumpt@latest
 
       - name: Run govulncheck
-        run: make vulncheck
+        run: make checkvuln
 
       - name: Check gofumpt formatting
-        run: make fmtcheck
+        run: make checkfmt
 
       - name: Check generated code
-        run: make gencheck
+        run: make checkgen
 
       - name: Run tests with coverage
         run: go test -covermode=atomic -coverpkg=./... -coverprofile=coverage.out ./...

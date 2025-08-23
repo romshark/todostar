@@ -3,7 +3,6 @@ package server
 import (
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/romshark/todostar/domain"
 	"github.com/romshark/todostar/events"
@@ -39,16 +38,7 @@ func (s *Server) getArchive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// First patch the shim.
-	sse.Patch(template.PartArchivedTodos(nil), "part archived todos list") // Shim
-	// And then patch each element with a short delay for animation.
-	for i, todo := range todos {
-		sse.AppendInto("#archived-todos-list",
-			template.PartTodosListItem(todo), "part archived todos list item")
-		if i+1 < len(todos) {
-			time.Sleep(80 * time.Millisecond)
-		}
-	}
+	sse.Patch(template.PartArchivedTodos(todos), "part archived todos list")
 
 	// Subscribe and keep updating the view until the connection is closed.
 	sub := events.OnTodosChanged(func(etc events.EventTodosChanged) {
