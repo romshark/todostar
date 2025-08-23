@@ -8,7 +8,7 @@ import (
 	"github.com/romshark/todostar/events"
 	"github.com/romshark/todostar/server/request"
 	"github.com/romshark/todostar/server/template"
-	datastar "github.com/starfederation/datastar-go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s *Server) getIndex(w http.ResponseWriter, r *http.Request) {

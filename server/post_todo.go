@@ -10,7 +10,7 @@ import (
 	"github.com/romshark/todostar/events"
 	"github.com/romshark/todostar/pkg/timefmt"
 	"github.com/romshark/todostar/server/request"
-	datastar "github.com/starfederation/datastar-go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s *Server) postTodo(w http.ResponseWriter, r *http.Request) {

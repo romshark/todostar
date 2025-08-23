@@ -11,7 +11,7 @@ import (
 	"github.com/romshark/todostar/pkg/timefmt"
 	"github.com/romshark/todostar/server/request"
 	"github.com/romshark/todostar/server/template"
-	datastar "github.com/starfederation/datastar-go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s *Server) putTodo(w http.ResponseWriter, r *http.Request) {

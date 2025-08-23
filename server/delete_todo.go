@@ -6,7 +6,7 @@ import (
 
 	"github.com/romshark/todostar/events"
 	"github.com/romshark/todostar/server/request"
-	datastar "github.com/starfederation/datastar-go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s *Server) deleteTodo(w http.ResponseWriter, r *http.Request) {

@@ -7,7 +7,7 @@ import (
 	"github.com/romshark/todostar/domain"
 	"github.com/romshark/todostar/server/request"
 	"github.com/romshark/todostar/server/template"
-	datastar "github.com/starfederation/datastar-go/datastar"
+	"github.com/starfederation/datastar-go/datastar"
 )
 
 func (s *Server) postFormNew(w http.ResponseWriter, r *http.Request) {
