@@ -48,7 +48,7 @@ func ViewIndex(todos []*domain.Todo) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if todos == nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "  <p id=\"todos\" class=\"p-8 text-xl flex flex-row gap-4 justify-center items-center\"><wa-icon name=\"spinner\" class=\"animate-spin\"></wa-icon> loading todos...</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "  <p id=\"todos\" class=\"\n\t\t\t\t\tapp-anim-appear-delayed\n\t\t\t\t\tp-8 text-xl flex flex-row gap-4 justify-center items-center\n\t\t\t\t\"><wa-icon name=\"spinner\" class=\"animate-spin\"></wa-icon> loading todos...</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

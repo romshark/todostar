@@ -34,7 +34,10 @@ templ ViewIndex(todos []*domain.Todo) {
 			// GET / has been invoked.
 			<p
 				id="todos"
-				class="p-8 text-xl flex flex-row gap-4 justify-center items-center"
+				class="
+					app-anim-appear-delayed
+					p-8 text-xl flex flex-row gap-4 justify-center items-center
+				"
 			>
 				<wa-icon name="spinner" class="animate-spin"></wa-icon>
 				loading todos...

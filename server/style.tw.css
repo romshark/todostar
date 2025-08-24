@@ -1,4 +1,5 @@
 @layer theme, base, components, utilities;
+
 @import "tailwindcss/theme.css" layer(theme);
 /* Disable preflight such that it doesn't break webawesome */
 @import "tailwindcss/utilities.css" layer(utilities);
@@ -15,20 +16,36 @@ a {
   navigation: auto;
 }
 
-.animatedAppear {
-  opacity: 0;
-  animation: fadeInUp 0.4s ease forwards;
-  animation-delay: calc(var(--i, 0) * 0.08s);
+@layer base {
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
+  }
 }
 
-@keyframes fadeInUp {
-  from {
+@layer utilities {
+  .app-animated-appear {
     opacity: 0;
-    transform: translateY(1rem);
+    animation: fadeInUp 0.4s ease forwards;
+    animation-delay: calc(var(--i, 0) * 0.08s);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .app-anim-appear-delayed {
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+    animation-delay: 0.3s;
   }
 }
 
