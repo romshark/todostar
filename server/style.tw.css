@@ -31,3 +31,8 @@ a {
     transform: translateY(0);
   }
 }
+
+/* This prevents FOUC (Flash of Unstyled Content) caused by webawesome web components */
+:not(:defined) {
+  display: none;
+}
