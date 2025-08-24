@@ -7,6 +7,7 @@ templ PartDialogEdit(open bool, errTitle, errDescription string) {
 			open
 		}
 		data-attr-label="`Editing Todo ${$selectedTodoID}`"
+		data-preserve-attr="open"
 	>
 		<wa-button
 			slot="header-actions"

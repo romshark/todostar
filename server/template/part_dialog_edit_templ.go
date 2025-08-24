@@ -39,7 +39,7 @@ func PartDialogEdit(open bool, errTitle, errDescription string) templ.Component 
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " data-attr-label=\"`Editing Todo ${$selectedTodoID}`\"><wa-button slot=\"header-actions\" appearance=\"plain\" data-on-click=\"\n\t\t\t\t$editArchived = true;\n\t\t\t\t@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})\n\t\t\t\tel_dialogEdit.open = false;\n\t\t\t\"><wa-icon name=\"archive\" label=\"Archive this todo\"></wa-icon></wa-button><div class=\"flex flex-col gap-1\" data-on-change=\"@post('/form/edit/', {filterSignals: {include: /^edit.+$/}})\"><wa-checkbox data-on-input=\"$editChecked = el.checked\" data-effect=\"el.checked = $editChecked\" data-attr-hint=\"\n\t\t\t\t\t$editChecked ? 'Closed, but can be reopened' : 'Still open'\n\t\t\t\t\">Done</wa-checkbox><div><wa-input label=\"Title\" hint=\"Required\" appearance=\"filled\" autocomplete=\"off\" data-on-input=\"$editTitle = el.value\" data-effect=\"el.value = $editTitle\"></wa-input> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " data-attr-label=\"`Editing Todo ${$selectedTodoID}`\" data-preserve-attr=\"open\"><wa-button slot=\"header-actions\" appearance=\"plain\" data-on-click=\"\n\t\t\t\t$editArchived = true;\n\t\t\t\t@post(`/todo/`, {filterSignals: {include: /^(selectedTodoID|editArchived)$/}})\n\t\t\t\tel_dialogEdit.open = false;\n\t\t\t\"><wa-icon name=\"archive\" label=\"Archive this todo\"></wa-icon></wa-button><div class=\"flex flex-col gap-1\" data-on-change=\"@post('/form/edit/', {filterSignals: {include: /^edit.+$/}})\"><wa-checkbox data-on-input=\"$editChecked = el.checked\" data-effect=\"el.checked = $editChecked\" data-attr-hint=\"\n\t\t\t\t\t$editChecked ? 'Closed, but can be reopened' : 'Still open'\n\t\t\t\t\">Done</wa-checkbox><div><wa-input label=\"Title\" hint=\"Required\" appearance=\"filled\" autocomplete=\"off\" data-on-input=\"$editTitle = el.value\" data-effect=\"el.value = $editTitle\"></wa-input> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -63,7 +63,7 @@ func PartDialogEdit(open bool, errTitle, errDescription string) templ.Component 
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(errTitle)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/part_dialog_edit.templ`, Line: 44, Col: 19}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/part_dialog_edit.templ`, Line: 45, Col: 19}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -104,7 +104,7 @@ func PartDialogEdit(open bool, errTitle, errDescription string) templ.Component 
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(errDescription)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/part_dialog_edit.templ`, Line: 60, Col: 25}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `server/template/part_dialog_edit.templ`, Line: 61, Col: 25}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
