@@ -42,6 +42,11 @@ a {
     animation-delay: calc(var(--i, 0) * 0.08s);
   }
 
+  .app-anim-appear {
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+  }
+
   .app-anim-appear-delayed {
     opacity: 0;
     animation: fadeIn 0.4s ease forwards;

@@ -9,7 +9,7 @@ import (
 
 templ PartTodos(todos []*domain.Todo) {
 	<div id="todos">
-		<p class="mb-2 text-sm app-anim-appear-up">
+		<p class="mb-2 text-sm app-anim-appear">
 			{ fmt.Sprintf(
 				"Found %d todo(s) - %.0f%% done",
 				len(todos), percentDone(todos),
