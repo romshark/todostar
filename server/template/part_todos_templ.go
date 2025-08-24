@@ -148,7 +148,7 @@ func PartTodosListItem(i int, todo *domain.Todo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"\n\t\t\tanimatedAppear\n\t\t\topacity-100 border rounded shadow-sm m-0\n\t\t\tborder-stone-300 dark:border-stone-700\n\t\t\" data-signals=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"\n\t\t\tanimatedAppear\n\t\t\tborder rounded shadow-sm m-0\n\t\t\tborder-stone-300 dark:border-stone-700\n\t\t\" data-signals=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

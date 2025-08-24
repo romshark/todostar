@@ -16,6 +16,7 @@ a {
 }
 
 .animatedAppear {
+  opacity: 0;
   animation: fadeInUp 0.4s ease forwards;
   animation-delay: calc(var(--i, 0) * 0.08s);
 }
