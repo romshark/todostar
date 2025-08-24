@@ -17,9 +17,9 @@ templ PartDialogNew(open bool, errTitle, errDescription string) {
 				$newTitle = null;
 				$newDescription = null;
 				$newDue = null;
-				$eEgg++;
+				$_eEgg++;
 			"
-			data-effect="if ($eEgg >= 10) { $eEgg = 0; alert('Ha! gotcha, QA!') }"
+			data-effect="if ($_eEgg >= 10) { $_eEgg = 0; alert('Ha! gotcha, QA!') }"
 		>
 			<wa-icon name="circle-xmark" label="Reset all inputs"></wa-icon>
 		</wa-button>

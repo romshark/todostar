@@ -39,7 +39,7 @@ func PartDialogNew(open bool, errTitle, errDescription string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " light-dismiss data-preserve-attr=\"open\"><wa-button slot=\"header-actions\" appearance=\"plain\" data-on-click=\"\n\t\t\t\t$newTitle = null;\n\t\t\t\t$newDescription = null;\n\t\t\t\t$newDue = null;\n\t\t\t\t$eEgg++;\n\t\t\t\" data-effect=\"if ($eEgg >= 10) { $eEgg = 0; alert('Ha! gotcha, QA!') }\"><wa-icon name=\"circle-xmark\" label=\"Reset all inputs\"></wa-icon></wa-button><div class=\"flex flex-col gap-1\" data-on-change=\"@post('/form/new/', {filterSignals: {include: /^new.+$/}})\"><div><wa-input label=\"Title\" hint=\"Required\" placeholder=\"Summary\" appearance=\"filled\" autocomplete=\"off\" data-on-input=\"$newTitle = el.value\" data-effect=\"el.value = $newTitle\"></wa-input> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " light-dismiss data-preserve-attr=\"open\"><wa-button slot=\"header-actions\" appearance=\"plain\" data-on-click=\"\n\t\t\t\t$newTitle = null;\n\t\t\t\t$newDescription = null;\n\t\t\t\t$newDue = null;\n\t\t\t\t$_eEgg++;\n\t\t\t\" data-effect=\"if ($_eEgg >= 10) { $_eEgg = 0; alert('Ha! gotcha, QA!') }\"><wa-icon name=\"circle-xmark\" label=\"Reset all inputs\"></wa-icon></wa-button><div class=\"flex flex-col gap-1\" data-on-change=\"@post('/form/new/', {filterSignals: {include: /^new.+$/}})\"><div><wa-input label=\"Title\" hint=\"Required\" placeholder=\"Summary\" appearance=\"filled\" autocomplete=\"off\" data-on-input=\"$newTitle = el.value\" data-effect=\"el.value = $newTitle\"></wa-input> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
