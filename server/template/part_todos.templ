@@ -9,7 +9,7 @@ import (
 
 templ PartTodos(todos []*domain.Todo) {
 	<div id="todos">
-		<p class="mb-2 text-sm">
+		<p class="mb-2 text-sm app-anim-appear-up">
 			{ fmt.Sprintf(
 				"Found %d todo(s) - %.0f%% done",
 				len(todos), percentDone(todos),
@@ -37,7 +37,7 @@ templ PartTodosListItem(i int, todo *domain.Todo) {
 	<li
 		style={ fmt.Sprintf("--i: %d", i+1) }
 		class="
-			app-animated-appear
+			app-anim-appear-up
 			border rounded shadow-sm m-0
 			border-stone-300 dark:border-stone-700
 		"

@@ -9,7 +9,7 @@ import (
 
 templ PartArchivedTodos(todos []*domain.Todo) {
 	<div id="archived-todos">
-		<p class="mb-2 text-sm">
+		<p class="mb-2 text-sm app-anim-appear-up">
 			{ fmt.Sprintf("Found %d archived todo(s)", len(todos)) }
 		</p>
 		if len(todos) < 1 {
@@ -34,7 +34,7 @@ templ PartArchivedTodosListItem(i int, todo *domain.Todo) {
 	<li
 		style={ fmt.Sprintf("--i: %d", i+1) }
 		class="
-			app-animated-appear
+			app-anim-appear-up
 			border rounded border-stone-300 dark:border-stone-700 shadow-sm m-0
 		"
 	>

@@ -36,7 +36,7 @@ func PartArchivedTodos(todos []*domain.Todo) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"archived-todos\"><p class=\"mb-2 text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"archived-todos\"><p class=\"mb-2 text-sm app-anim-appear-up\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -145,7 +145,7 @@ func PartArchivedTodosListItem(i int, todo *domain.Todo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"\n\t\t\tapp-animated-appear\n\t\t\tborder rounded border-stone-300 dark:border-stone-700 shadow-sm m-0\n\t\t\"><div class=\"flex flex-row gap-1 p-2\"><wa-checkbox class=\"pt-1.5\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"\n\t\t\tapp-anim-appear-up\n\t\t\tborder rounded border-stone-300 dark:border-stone-700 shadow-sm m-0\n\t\t\"><div class=\"flex flex-row gap-1 p-2\"><wa-checkbox class=\"pt-1.5\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
